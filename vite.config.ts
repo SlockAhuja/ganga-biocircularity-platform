@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: './', // Ensures relative paths work seamlessly on GitHub Pages, custom domains, and subdirectories
+  base: '/ganga-biocircularity-platform/', // Explicit repository path for GitHub Pages
   build: {
     outDir: 'dist',
     sourcemap: false,
