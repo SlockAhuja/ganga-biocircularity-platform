@@ -1,0 +1,42 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+@layer base {
+  body {
+    @apply bg-background text-ink-900 font-sans antialiased min-h-screen selection:bg-ganga-100 selection:text-ganga-900;
+  }
+}
+
+/* Custom scrollbar for scientific aesthetic */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #F0F4F2;
+}
+::-webkit-scrollbar-thumb {
+  background: #C4D4CC;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9DB5A9;
+}
+
+/* Scientific pulsing dot */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.95); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Custom map canvas container */
+.maplibre-gl-map {
+  font-family: 'Inter', sans-serif;
+}
