@@ -27,7 +27,7 @@ export const ResearchProfileSection: React.FC<{ onContact: () => void }> = ({ on
               {/* Profile Avatar / Seal */}
               <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-1 shadow-md flex-shrink-0">
                 <div className="w-full h-full bg-slate-900 rounded-xl flex items-center justify-center text-white text-3xl font-mono font-bold">
-                  PKS
+                  PI
                 </div>
               </div>
 
@@ -69,7 +69,7 @@ export const ResearchProfileSection: React.FC<{ onContact: () => void }> = ({ on
                 onClick={onContact}
                 className="bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md justify-center"
               >
-                Contact Dr. Sharma
+                Contact Research Group
               </Button>
               <a
                 href="#publications"

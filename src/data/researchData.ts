@@ -48,11 +48,11 @@ export interface PublicationItem {
 }
 
 export const researcherProfile = {
-  fullName: "Dr. Praveen Kumar Sharma",
-  designation: "Associate Professor & Lead Researcher",
+  fullName: "Principal Investigator & Research Group",
+  designation: "Advanced Electromagnetics & Bio-Geospatial Systems Group",
   specialization: "Metamaterials, Microwave & Wearable Antennas, Flexible RF Systems & Interdisciplinary Applied Sensing",
-  email: "praveen.sharma@research.edu.in",
-  alternateEmail: "ahujaslock321@gmail.com",
+  email: "ahujaslock321@gmail.com",
+  alternateEmail: "research.group@academic-initiative.edu",
   phone: "+91 98765 43210",
   location: "Pune / Pilani / Delhi NCR, India",
   googleScholar: "https://scholar.google.com",
@@ -66,7 +66,7 @@ export const researcherProfile = {
   projectsFunding: "₹85+ Lakhs",
   
   aboutSummary: 
-    "Dr. Praveen Kumar Sharma is an accomplished researcher and academician specializing in the domains of Metamaterials, Metasurfaces, Flexible & Wearable Antennas, Millimeter-Wave 5G/6G RF circuits, and Interdisciplinary Remote Sensing. Having completed his Ph.D. from BITS Pilani and Post-Doctoral research at Seoul National University of Science and Technology (SeoulTech, South Korea), Dr. Sharma has led high-impact sponsored research projects, authored over 45 peer-reviewed articles in high-impact IEEE, Elsevier, and Nature-indexed journals, and actively fosters academic-industry partnerships across India, South Korea, and Europe.",
+    "Our research group specializes in the vanguard domains of Metamaterials, Metasurfaces, Flexible & Wearable Antennas, Millimeter-Wave 5G/6G RF circuits, and Interdisciplinary Remote Sensing. Having completed doctoral and post-doctoral research at BITS Pilani and Seoul National University of Science and Technology (SeoulTech, South Korea), the group has spearheaded high-impact sponsored research projects, authored over 45 peer-reviewed articles in high-impact IEEE, Elsevier, and Nature-indexed journals, and actively fosters academic-industry partnerships across India, South Korea, and Europe.",
 
   academicQualifications: [
     {
@@ -448,7 +448,7 @@ export const representativePublications: PublicationItem[] = [
   {
     id: "pub-01",
     title: "Flexible and Conformable Metamaterial-Inspired Wearable Antenna for Wireless Body Area Networks",
-    authors: "Praveen Kumar Sharma, et al.",
+    authors: "Research Group, et al.",
     journal: "IEEE Transactions on Antennas and Propagation (TAP)",
     year: 2023,
     doi: "10.1109/TAP.2023.XXXXXXX",
@@ -459,7 +459,7 @@ export const representativePublications: PublicationItem[] = [
   {
     id: "pub-02",
     title: "A Low-Profile Broadband Reconfigurable Metasurface with Programmable Phase Distribution for 5G Millimeter-Wave Beamsteering",
-    authors: "Praveen Kumar Sharma, S. Kim, et al.",
+    authors: "Research Group, S. Kim, et al.",
     journal: "IEEE Antennas and Wireless Propagation Letters (AWPL)",
     year: 2022,
     doi: "10.1109/LAWP.2022.XXXXXXX",
@@ -470,7 +470,7 @@ export const representativePublications: PublicationItem[] = [
   {
     id: "pub-03",
     title: "Design and Experimental Verification of Screen-Printed Flexible Polymer Resonators on Biocompatible Substrates",
-    authors: "Praveen Kumar Sharma, et al.",
+    authors: "Research Group, et al.",
     journal: "Elsevier Materials Science and Engineering: B",
     year: 2021,
     doi: "10.1016/j.mseb.2021.XXXXXX",
@@ -481,7 +481,7 @@ export const representativePublications: PublicationItem[] = [
   {
     id: "pub-04",
     title: "Multi-Spectral Satellite Imagery (Sentinel-2) Assisted Bio-Physical Quantification of River Macrophyte Proliferation for Circular Bioenergy",
-    authors: "Praveen Kumar Sharma, et al.",
+    authors: "Research Group, et al.",
     journal: "Nature Scientific Reports / Environmental Remote Sensing",
     year: 2024,
     doi: "10.1038/s41598-024-XXXXXX",
@@ -492,7 +492,7 @@ export const representativePublications: PublicationItem[] = [
   {
     id: "pub-05",
     title: "Wearable Metamaterial Antenna System for Continuous Non-Invasive Physiological RF Monitoring",
-    authors: "Praveen Kumar Sharma, et al.",
+    authors: "Research Group, et al.",
     journal: "Indian Patent Office (Published Patent Application)",
     year: 2023,
     type: "Patent",

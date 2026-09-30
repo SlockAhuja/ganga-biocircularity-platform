@@ -62,7 +62,7 @@ export const CollaborationModal: React.FC<CollaborationModalProps> = ({
             Propose Research or Academic Engagement
           </h3>
           <p className="text-xs text-slate-500 mt-1">
-            Initiate a collaborative project, faculty exchange, workshop, or grant proposal with Dr. Praveen Kumar Sharma's research group.
+            Initiate a collaborative project, faculty exchange, workshop, or grant proposal with our interdisciplinary research group.
           </p>
         </div>
 

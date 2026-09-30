@@ -1,8 +1,7 @@
 # 🏛️ Advanced Electromagnetics & Interdisciplinary Research Portal
-### Lead Principal Investigator: Dr. Praveen Kumar Sharma (Ph.D. BITS Pilani, Postdoc SeoulTech)
 ### Flagship Initiative: 🌿 Ganga Biocircularity Intelligence Platform
 
-[![Deploy to GitHub Pages](https://github.com/slockahuja/ganga-biocircularity-platform/actions/workflows/deploy.yml/badge.svg)](https://github.com/slockahuja/ganga-biocircularity-platform/actions/workflows/deploy.yml)
+[![Deploy to GitHub Pages](https://github.com/SlockAhuja/ganga-biocircularity-platform/actions/workflows/deploy.yml/badge.svg)](https://github.com/SlockAhuja/ganga-biocircularity-platform/actions/workflows/deploy.yml)
 [![Live Demo on GitHub Pages](https://img.shields.io/badge/Live%20Website-GitHub%20Pages-blue?style=flat&logo=github)](https://slockahuja.github.io/ganga-biocircularity-platform/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](https://opensource.org/licenses/MIT)
 [![Stack](https://img.shields.io/badge/Stack-React%20%7C%20TypeScript%20%7C%20Vite%20%7C%20TailwindCSS-indigo)](https://react.dev/)
@@ -11,7 +10,7 @@
 
 ## 📌 1. Project Overview & Institutional Purpose
 
-This repository houses the unified **Academic Research, Collaboration & Interdisciplinary Innovation Platform** established by the research group of **Dr. Praveen Kumar Sharma**. The platform serves as a modern, research-grade showcase and interactive analytical portal designed for presentation to universities, funding agencies (DST, CSIR, ISRO, NRF, CEFIPRA), national laboratories, and academic collaborators.
+This repository houses the unified **Academic Research, Collaboration & Interdisciplinary Innovation Platform**. The platform serves as a modern, research-grade showcase and interactive analytical portal designed for presentation to universities, funding agencies (DST, CSIR, ISRO, NRF, CEFIPRA), national laboratories, and academic collaborators.
 
 ### Key Objectives
 1. **Academic & Research Dissemination**: Present foundational and applied research thrusts in **Metamaterials, Metasurfaces, Flexible/Wearable Antennas, Millimeter-Wave 5G/6G, AI/ML Computational Electromagnetics, and Semiconductor Devices**.
@@ -117,7 +116,7 @@ ganga-biocircularity-platform/
 │   │   │   ├── ResearchAreasSection.tsx # 10 research domain interactive cards
 │   │   │   ├── CollaborationSection.tsx # 7 academic engagement modalities
 │   │   │   ├── InstitutionalPartnersSection.tsx # Transparent partner matrix
-│   │   │   ├── ResearchProfileSection.tsx # Dr. Praveen Sharma authoritative CV
+│   │   │   ├── ResearchProfileSection.tsx # Principal Investigator profile & curriculum
 │   │   │   ├── GangaPlatformIntegrationSection.tsx # Flagship demo bridge
 │   │   │   ├── PublicationsSection.tsx # Indexed IEEE/Elsevier articles & search
 │   │   │   ├── ContactSection.tsx # Official addresses & proposal form
@@ -233,5 +232,5 @@ The repository includes a GitHub Actions workflow (`.github/workflows/deploy.yml
 This project is licensed under the **MIT License**.
 
 **Academic Contact:**
-* **Dr. Praveen Kumar Sharma**: [ahujaslock321@gmail.com](mailto:ahujaslock321@gmail.com)
-* **GitHub Repository**: [https://github.com/slockahuja/ganga-biocircularity-platform](https://github.com/slockahuja/ganga-biocircularity-platform)
+* **Research Group / Principal Investigator**: [ahujaslock321@gmail.com](mailto:ahujaslock321@gmail.com)
+* **GitHub Repository**: [https://github.com/SlockAhuja/ganga-biocircularity-platform](https://github.com/SlockAhuja/ganga-biocircularity-platform)

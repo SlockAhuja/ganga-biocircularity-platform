@@ -41,7 +41,7 @@ export const Footer: React.FC<{
               <li><button onClick={() => onNavigate('home')} className="hover:text-white transition-colors cursor-pointer">Home Overview</button></li>
               <li><button onClick={() => onNavigate('about')} className="hover:text-white transition-colors cursor-pointer">Academic & Lab Vision</button></li>
               <li><button onClick={() => onNavigate('research')} className="hover:text-white transition-colors cursor-pointer">10 Core Research Thrusts</button></li>
-              <li><button onClick={() => onNavigate('profile')} className="hover:text-white transition-colors cursor-pointer">Dr. Praveen Sharma Profile</button></li>
+              <li><button onClick={() => onNavigate('profile')} className="hover:text-white transition-colors cursor-pointer">Research Profile</button></li>
               <li><button onClick={() => onNavigate('collaboration')} className="hover:text-white transition-colors cursor-pointer">Academic Collaboration</button></li>
               <li><button onClick={() => onNavigate('partners')} className="hover:text-white transition-colors cursor-pointer">Institutional Synergies</button></li>
               <li><button onClick={() => onNavigate('publications')} className="hover:text-white transition-colors cursor-pointer">Scholarly Publications & Patents</button></li>
@@ -73,7 +73,7 @@ export const Footer: React.FC<{
         {/* Bottom Bar with Academic Integrity Disclaimer */}
         <div className="pt-8 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-500">
           <div>
-            © {new Date().getFullYear()} Dr. Praveen Kumar Sharma Research Group. Built with React, TypeScript & Vite.
+            © {new Date().getFullYear()} Advanced Electromagnetics & Ganga Biocircularity Research Group.
           </div>
 
           <div className="flex items-center gap-4">

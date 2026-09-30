@@ -93,7 +93,7 @@ export const AcademicPortalHome: React.FC<AcademicPortalHomeProps> = ({
         }}
       />
 
-      {/* 8. Research Profile Section (Dr. Praveen Kumar Sharma) */}
+      {/* 8. Research Profile Section */}
       <ResearchProfileSection
         onContact={() => handleNavigate('contact')}
       />

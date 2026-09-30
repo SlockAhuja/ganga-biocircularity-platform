@@ -33,7 +33,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'home', label: 'Home' },
     { id: 'about', label: 'About' },
     { id: 'research', label: 'Research Areas' },
-    { id: 'profile', label: 'Dr. Praveen Sharma' },
+    { id: 'profile', label: 'Research Profile' },
     { id: 'ganga-initiative', label: 'Ganga Biocircularity', badge: 'Flagship' },
     { id: 'collaboration', label: 'Academic Collaboration' },
     { id: 'partners', label: 'Institutions' },
@@ -69,7 +69,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 font-medium">
-                Research Portal & Academic Collaboration Initiative • Dr. Praveen Kumar Sharma
+                Research Portal & Academic Collaboration Initiative • Advanced Bio-Geospatial Systems
               </p>
             </div>
           </div>

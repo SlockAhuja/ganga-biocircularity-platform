@@ -89,7 +89,7 @@ export function App() {
           </button>
           <span className="hidden sm:inline-block text-slate-500">|</span>
           <span className="hidden sm:inline-block text-slate-300 font-mono text-[11px]">
-            Initiative PI: Dr. Praveen Kumar Sharma (BITS Pilani / SeoulTech)
+            Advanced Electromagnetics & Ganga Biocircularity Platform
           </span>
         </div>
 
