@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  postgis:
+    image: postgis/postgis:15-3.3
+    container_name: ganga_postgis
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: ganga_biocircularity
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgis_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ganga_biocircularity"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ganga_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ganga_backend
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgrespassword@postgis:5432/ganga_biocircularity
+      - DEMO_MODE=true
+      - SECRET_KEY=ganga-biocircularity-research-key-2026-supersecret
+      - BACKEND_HOST=0.0.0.0
+      - BACKEND_PORT=8000
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgis:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+    networks:
+      - ganga_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ganga_frontend
+    environment:
+      - VITE_API_BASE_URL=http://localhost:8000/api/v1
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    networks:
+      - ganga_network
+
+volumes:
+  postgis_data:
+
+networks:
+  ganga_network:
+    driver: bridge

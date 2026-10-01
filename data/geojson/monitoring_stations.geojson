@@ -1,0 +1,150 @@
+{
+  "type": "FeatureCollection",
+  "name": "Prayagraj_Monitoring_Stations",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "STN-01",
+        "name": "Phaphamau Bridge Station",
+        "river": "Ganga",
+        "station_type": "Continuous Multi-Parameter + Hydrology",
+        "status": "Active",
+        "elevation_m": 88.5,
+        "ph": 7.8,
+        "do_mg_l": 6.4,
+        "bod_mg_l": 3.8,
+        "cod_mg_l": 18.2,
+        "tss_mg_l": 42.0,
+        "temp_c": 24.5,
+        "turbidity_ntu": 14.2,
+        "conductivity_us_cm": 380.0,
+        "last_updated": "2026-09-28T08:30:00Z"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [81.8612, 25.5015]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "STN-02",
+        "name": "Curzon Bridge Upstream Reach",
+        "river": "Ganga",
+        "station_type": "Ecological & Vegetation Assessment",
+        "status": "Active",
+        "elevation_m": 87.2,
+        "ph": 7.6,
+        "do_mg_l": 5.8,
+        "bod_mg_l": 4.5,
+        "cod_mg_l": 22.0,
+        "tss_mg_l": 58.0,
+        "temp_c": 25.1,
+        "turbidity_ntu": 18.5,
+        "conductivity_us_cm": 415.0,
+        "last_updated": "2026-09-28T09:00:00Z"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [81.8755, 25.4830]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "STN-03",
+        "name": "Sangam / Triveni Confluence Station",
+        "river": "Ganga-Yamuna Confluence",
+        "station_type": "Primary Confluence & Circular Bioeconomy Hub",
+        "status": "Active",
+        "elevation_m": 84.0,
+        "ph": 7.9,
+        "do_mg_l": 4.9,
+        "bod_mg_l": 6.2,
+        "cod_mg_l": 28.5,
+        "tss_mg_l": 72.0,
+        "temp_c": 25.8,
+        "turbidity_ntu": 24.0,
+        "conductivity_us_cm": 490.0,
+        "last_updated": "2026-09-28T09:30:00Z"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [81.8845, 25.4260]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "STN-04",
+        "name": "Naini Yamuna Bridge Station",
+        "river": "Yamuna",
+        "station_type": "Tributary Inflow & Heavy Metal Screening",
+        "status": "Active",
+        "elevation_m": 85.5,
+        "ph": 7.5,
+        "do_mg_l": 5.2,
+        "bod_mg_l": 5.1,
+        "cod_mg_l": 24.0,
+        "tss_mg_l": 64.0,
+        "temp_c": 26.0,
+        "turbidity_ntu": 21.0,
+        "conductivity_us_cm": 520.0,
+        "last_updated": "2026-09-28T09:15:00Z"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [81.8540, 25.4220]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "STN-05",
+        "name": "Jhunsi Downstream Reach Station",
+        "river": "Ganga",
+        "station_type": "Downstream Dispersion & Recovery Audit",
+        "status": "Active",
+        "elevation_m": 82.8,
+        "ph": 7.7,
+        "do_mg_l": 6.1,
+        "bod_mg_l": 4.2,
+        "cod_mg_l": 20.1,
+        "tss_mg_l": 48.0,
+        "temp_c": 24.8,
+        "turbidity_ntu": 16.0,
+        "conductivity_us_cm": 440.0,
+        "last_updated": "2026-09-28T10:00:00Z"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [81.9120, 25.4180]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "STN-06",
+        "name": "Arail Ghat Harvesting Outpost",
+        "river": "Ganga",
+        "station_type": "Mechanical Harvest & Dewatering Field Base",
+        "status": "Active",
+        "elevation_m": 83.5,
+        "ph": 7.8,
+        "do_mg_l": 5.6,
+        "bod_mg_l": 4.8,
+        "cod_mg_l": 21.8,
+        "tss_mg_l": 52.0,
+        "temp_c": 25.2,
+        "turbidity_ntu": 17.5,
+        "conductivity_us_cm": 460.0,
+        "last_updated": "2026-09-28T10:15:00Z"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [81.8790, 25.4140]
+      }
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "system_info": {
+    "platform": "Ganga Biocircularity Intelligence Platform",
+    "version": "1.0.0-research",
+    "location": "Prayagraj (Allahabad), Uttar Pradesh, India",
+    "coordinates_center": [81.8845, 25.4260]
+  },
+  "biomass_constants": {
+    "water_hyacinth_species": "Eichhornia crassipes",
+    "fresh_yield_density_t_per_ha": {
+      "Low": 17.0,
+      "Moderate": 24.0,
+      "High": 32.0,
+      "Very High": 35.0
+    },
+    "default_moisture_content_pct": 91.0,
+    "total_solids_pct": 9.0,
+    "volatile_solids_pct_of_ts": 80.0,
+    "carbon_to_nitrogen_ratio": 24.5,
+    "ash_content_pct_of_ts": 20.0,
+    "cellulose_pct": 28.5,
+    "hemicellulose_pct": 32.0,
+    "lignin_pct": 9.5
+  },
+  "bioenergy_constants": {
+    "biochemical_methane_potential_m3_per_kg_vs": 0.28,
+    "methane_fraction_in_biogas": 0.62,
+    "calorific_value_methane_mj_per_m3": 35.8,
+    "electrical_conversion_efficiency": 0.35,
+    "bio_cng_compression_density_kg_per_m3": 0.72,
+    "bio_cng_purity_post_scrubbing": 0.95,
+    "lpg_equivalent_factor_kg_per_kg_cng": 0.90
+  },
+  "vermicompost_and_products_constants": {
+    "digestate_output_pct_of_fresh_input": 0.85,
+    "vermicompost_yield_pct_of_digestate_solids": 0.45,
+    "nitrogen_content_pct": 2.1,
+    "phosphorus_content_pct": 1.4,
+    "potassium_content_pct": 1.8,
+    "vermiwash_yield_liters_per_t_digestate": 120.0,
+    "humic_acid_extract_pct": 4.5,
+    "fulvic_acid_extract_pct": 1.8
+  },
+  "environmental_factors": {
+    "ghg_avoidance_kg_co2e_per_t_fresh_harvested": 64.2,
+    "grid_electricity_offset_kg_co2e_per_kwh": 0.82,
+    "cng_fossil_displacement_kg_co2e_per_kg_bio_cng": 2.75,
+    "bod_removal_potential_kg_per_ha_hyacinth": 185.0,
+    "nitrogen_uptake_kg_per_ha": 42.0,
+    "phosphorus_uptake_kg_per_ha": 9.5
+  },
+  "economic_baseline_inr": {
+    "currency": "INR (₹)",
+    "mechanical_harvesting_cost_per_ton": 850.0,
+    "dewatering_and_transport_cost_per_ton": 450.0,
+    "anaerobic_digestion_opex_per_ton": 600.0,
+    "bio_cng_market_price_per_kg": 75.0,
+    "organic_vermicompost_price_per_kg": 12.0,
+    "liquid_vermiwash_price_per_liter": 35.0,
+    "humic_extract_price_per_liter": 180.0,
+    "carbon_credit_price_per_ton_co2e": 1200.0
+  },
+  "water_quality_reference_limits": {
+    "ph_standard": {"min": 6.5, "max": 8.5, "unit": "pH units"},
+    "dissolved_oxygen_mg_l": {"min_acceptable": 5.0, "desirable": 6.0, "unit": "mg/L"},
+    "bod_mg_l": {"max_acceptable": 3.0, "unit": "mg/L"},
+    "cod_mg_l": {"max_acceptable": 10.0, "unit": "mg/L"},
+    "tss_mg_l": {"max_acceptable": 50.0, "unit": "mg/L"}
+  },
+  "heavy_metals_reference_standards_mg_kg": {
+    "chromium_cr": {"limit": 50.0, "bioaccumulation_factor": 140.0, "status": "Within configured reference threshold"},
+    "lead_pb": {"limit": 100.0, "bioaccumulation_factor": 85.0, "status": "Within configured reference threshold"},
+    "cadmium_cd": {"limit": 5.0, "bioaccumulation_factor": 220.0, "status": "Within configured reference threshold"},
+    "nickel_ni": {"limit": 50.0, "bioaccumulation_factor": 65.0, "status": "Within configured reference threshold"},
+    "mercury_hg": {"limit": 0.5, "bioaccumulation_factor": 45.0, "status": "Within configured reference threshold"},
+    "arsenic_as": {"limit": 10.0, "bioaccumulation_factor": 30.0, "status": "Within configured reference threshold"},
+    "zinc_zn": {"limit": 300.0, "bioaccumulation_factor": 310.0, "status": "Within configured reference threshold"},
+    "copper_cu": {"limit": 100.0, "bioaccumulation_factor": 115.0, "status": "Within configured reference threshold"}
+  }
+}

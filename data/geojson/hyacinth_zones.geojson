@@ -1,0 +1,182 @@
+{
+  "type": "FeatureCollection",
+  "name": "Prayagraj_Hyacinth_Detected_Zones",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "HZ-PRY-01",
+        "name": "Sangam Left Bank Embayment Patch",
+        "region": "Prayagraj - Sangam",
+        "river": "Ganga",
+        "density_class": "Very High",
+        "coverage_percentage": 92.5,
+        "area_ha": 14.8,
+        "perimeter_m": 1820.0,
+        "fresh_biomass_t": 518.0,
+        "dry_biomass_t": 46.62,
+        "volatile_solids_t": 37.30,
+        "moisture_content_pct": 91.0,
+        "confidence": 0.94,
+        "data_source": "Sentinel-2 MSI Level-2A (Prototype Classification)",
+        "processing_version": "v2.4-NDVI-MNDWI-FUSION",
+        "observation_date": "2026-09-26",
+        "harvesting_feasibility": "High (Boat access & conveyor feasible)",
+        "coordinates_centroid": [81.8910, 25.4285]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [81.8870, 25.4310],
+            [81.8940, 25.4325],
+            [81.8965, 25.4270],
+            [81.8910, 25.4245],
+            [81.8860, 25.4275],
+            [81.8870, 25.4310]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "HZ-PRY-02",
+        "name": "Curzon Ghat Upstream Backwater",
+        "region": "Prayagraj - North",
+        "river": "Ganga",
+        "density_class": "High",
+        "coverage_percentage": 78.0,
+        "area_ha": 9.4,
+        "perimeter_m": 1460.0,
+        "fresh_biomass_t": 282.0,
+        "dry_biomass_t": 25.38,
+        "volatile_solids_t": 20.30,
+        "moisture_content_pct": 91.0,
+        "confidence": 0.91,
+        "data_source": "Sentinel-2 MSI Level-2A (Prototype Classification)",
+        "processing_version": "v2.4-NDVI-MNDWI-FUSION",
+        "observation_date": "2026-09-26",
+        "harvesting_feasibility": "Moderate (Shallow bank constraints)",
+        "coordinates_centroid": [81.8720, 25.4865]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [81.8685, 25.4890],
+            [81.8745, 25.4910],
+            [81.8760, 25.4840],
+            [81.8705, 25.4820],
+            [81.8685, 25.4890]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "HZ-PRY-03",
+        "name": "Phaphamau Meander Shallows",
+        "region": "Prayagraj - North Upstream",
+        "river": "Ganga",
+        "density_class": "Moderate",
+        "coverage_percentage": 58.5,
+        "area_ha": 6.8,
+        "perimeter_m": 1120.0,
+        "fresh_biomass_t": 163.2,
+        "dry_biomass_t": 14.69,
+        "volatile_solids_t": 11.75,
+        "moisture_content_pct": 91.0,
+        "confidence": 0.88,
+        "data_source": "Sentinel-2 MSI Level-2A (Prototype Classification)",
+        "processing_version": "v2.4-NDVI-MNDWI-FUSION",
+        "observation_date": "2026-09-26",
+        "harvesting_feasibility": "High (Direct road access nearby)",
+        "coordinates_centroid": [81.8560, 25.5050]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [81.8525, 25.5080],
+            [81.8590, 25.5090],
+            [81.8600, 25.5020],
+            [81.8540, 25.5010],
+            [81.8525, 25.5080]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "HZ-PRY-04",
+        "name": "Naini Bank Stagnation Pool",
+        "region": "Prayagraj - South Yamuna",
+        "river": "Yamuna",
+        "density_class": "High",
+        "coverage_percentage": 82.0,
+        "area_ha": 5.2,
+        "perimeter_m": 980.0,
+        "fresh_biomass_t": 166.4,
+        "dry_biomass_t": 14.98,
+        "volatile_solids_t": 11.98,
+        "moisture_content_pct": 91.0,
+        "confidence": 0.89,
+        "data_source": "Sentinel-2 MSI Level-2A (Prototype Classification)",
+        "processing_version": "v2.4-NDVI-MNDWI-FUSION",
+        "observation_date": "2026-09-26",
+        "harvesting_feasibility": "Moderate",
+        "coordinates_centroid": [81.8490, 25.4205]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [81.8455, 25.4230],
+            [81.8520, 25.4240],
+            [81.8530, 25.4180],
+            [81.8470, 25.4170],
+            [81.8455, 25.4230]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_id": "HZ-PRY-05",
+        "name": "Jhunsi Downstream Sediment Bank",
+        "region": "Prayagraj - East Downstream",
+        "river": "Ganga",
+        "density_class": "Low",
+        "coverage_percentage": 34.0,
+        "area_ha": 2.4,
+        "perimeter_m": 640.0,
+        "fresh_biomass_t": 40.8,
+        "dry_biomass_t": 3.67,
+        "volatile_solids_t": 2.94,
+        "moisture_content_pct": 91.0,
+        "confidence": 0.85,
+        "data_source": "Sentinel-2 MSI Level-2A (Prototype Classification)",
+        "processing_version": "v2.4-NDVI-MNDWI-FUSION",
+        "observation_date": "2026-09-26",
+        "harvesting_feasibility": "Low (Fast current proximity)",
+        "coordinates_centroid": [81.9250, 25.4120]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [81.9220, 25.4140],
+            [81.9280, 25.4150],
+            [81.9290, 25.4095],
+            [81.9230, 25.4090],
+            [81.9220, 25.4140]
+          ]
+        ]
+      }
+    }
+  ]
+}
