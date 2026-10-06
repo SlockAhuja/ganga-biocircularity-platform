@@ -119,12 +119,17 @@ def get_reality_audit_summary() -> Dict[str, Any]:
                 "products": "7.01 tonnes Vermicompost + 35,311 L Vermiwash"
             },
             "mass_balance": {
-                "status": "VALIDATED",
-                "closure_error": "0.0000% (Conservation of Mass)"
+                "status": "COMPUTATIONALLY VALIDATED",
+                "scientific_classification": "MODELED",
+                "closure_error": "0.0000% (First Law Conservation of Mass)"
             },
+
             "economics": {
                 "model": "Discounted cash flow & OPEX/CAPEX scenario modeling (Low/Base/High)",
                 "classification": "MODELED"
             }
-        }
+        },
+        "engineering_status": "DEPLOYMENT READY",
+        "experimental_validation_status": "PENDING_PILOT_LAB_ASSAYS"
     }
+

@@ -118,7 +118,9 @@ def calculate_mass_balance(
         },
         "provenance": {
             "method": "Conservation of Mass (First Law of Thermodynamics)",
-            "status": "MODELED",
-            "uncertainty_status": "Stoichiometrically constrained"
+            "status": "COMPUTATIONALLY VALIDATED",
+            "scientific_classification": "MODELED",
+            "uncertainty_status": "Stoichiometrically constrained (pending pilot laboratory validation)"
         }
     }
+

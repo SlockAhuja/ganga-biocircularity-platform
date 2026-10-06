@@ -12,17 +12,17 @@ This document presents a component-by-component reality audit across the entire 
 | **River Centerlines** | Deep-channel thalweg LineStrings | `REFERENCE_HYDROGRAPHY` | **REFERENCE** | Traces continuous navigable channel meander without land intersection. |
 | **Sentinel-2 Remote Sensing** | Google Earth Engine Harmonized SR (`camera-503319`) | `EARTH_ENGINE` | **ESTIMATED** | Cloud/shadow SCL filtered; MNDWI/NDWI/NDVI composite candidate classifier. |
 | **Water Quality (Physicochemical)** | CPCB / NWMP In-Situ Bulletins (6 stations) | `OBSERVED` | **OBSERVED** | 100% real CPCB Prayagraj monitoring data (pH, DO, BOD, COD, TDS, Turbidity). |
-| **Water Quality (Heavy Metals)** | Peer-reviewed Ganga ecotoxicology baselines | `LITERATURE` | **LITERATURE** | Explicitly marked as literature baselines until lab logs are ingested. |
-| **Biomass Quantification** | Geodesic area $\times$ allometric weed density scaling | `ESTIMATED` | **ESTIMATED** | Transparent equations in `BiomassEngine`; 95% CI: $479.1 \pm 169.0\text{ t}$. |
+| **Water Quality (Heavy Metals)** | Peer-reviewed Ganga ecotoxicology baselines | `LITERATURE` | **LITERATURE** | Explicitly marked as literature baselines until direct lab logs are ingested. |
+| **Biomass Quantification** | Geodesic area $\times$ Coverage Fraction $\times$ Density | `ESTIMATED` | **ESTIMATED** | Scientifically traceable; 95% CI: $479.1 \pm 169.0\text{ t}$. |
 | **Bioenergy & Anaerobic Digestion** | BMP kinetics ($\text{VS} \to \text{CH}_4 \to \text{Bio-CNG} \to \text{Electricity}$) | `MODELED` | **MODELED** | First-order kinetic model; 95% CI: $9,568 \pm 2,250\text{ m}^3$ Biogas. |
-| **Digestate & Vermicomposting** | *Eisenia fetida* solid-state bioconversion | `MODELED` | **MODELED** | Model yields 7.01 t vermicompost + 35,311 L liquid vermiwash. |
-| **Conservation of Mass Balance** | First Law of Thermodynamics closed mass flow | `VALIDATED` | **SCIENTIFICALLY VALIDATED** | Mass closure error = 0.0000% across all 5 cascading transformation stages. |
-| **Environmental LCA** | IPCC Tier-2 avoided methane & fossil substitution | `MODELED` | **MODELED** | Emission factors registered in assumptions; net $-122,991\text{ kg CO}_2\text{e}$. |
+| **Digestate & Vermicomposting** | *Eisenia fetida* solid-state bioconversion | `MODELED` | **MODELED** | Modeled yield: 7.01 t vermicompost + 35,311 L liquid vermiwash. |
+| **Conservation of Mass Balance** | First Law of Thermodynamics closed mass flow | `COMPUTATIONALLY_VALIDATED` | **COMPUTATIONALLY VALIDATED** | Closed mass flow with 0.0000% error across 5 cascading stages. |
+| **Environmental LCA** | IPCC AR6 Tier-2 avoided methane & fossil substitution | `MODELED` | **MODELED** | Emission factors documented with table citations; net $-122,991\text{ kg CO}_2\text{e}$. |
 | **Techno-Economics** | DCF & Capex/Opex Low/Base/High Scenarios | `MODELED` | **MODELED** | Transparent INR cost-benefit metrics; 1.24 yr payback period. |
 | **Ground Truth Architecture** | Field observation logger with validation status | `OBSERVED` | **OBSERVED** | Supports species, coverage, density, photo uploads, and validation labels. |
 | **Meteorological Context** | Open-Meteo API for Prayagraj coordinates | `OBSERVED` | **OBSERVED** | Real-time temperature, humidity, solar irradiance, precipitation. |
 | **Hydrological Gauges** | Central Water Commission (CWC) stage & discharge | `OBSERVED` | **OBSERVED** | Gauge levels at Phaphamau (Ganga) and Naini (Yamuna). |
-| **Scientific PDF Reporting** | Dynamic multi-page ReportLab generator | `SYSTEM` | **PRODUCTION READY** | Full provenance, methodology, charts, and audit metadata. |
+| **Scientific PDF Reporting** | Dynamic multi-page ReportLab generator | `SYSTEM` | **DEPLOYMENT READY** | Full provenance, methodology, charts, and audit metadata. |
 
 ---
 
