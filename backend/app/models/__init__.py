@@ -8,6 +8,7 @@ from app.models.water_quality import WaterQualityObservation
 from app.models.harvesting import HarvestingRecord, FieldObservation
 from app.models.circularity import CircularityScore, EnvironmentalMetric, EconomicMetric
 from app.models.reports import GeneratedReport
+from app.models.assumptions import ScientificAssumption
 
 __all__ = [
     "Base",
@@ -28,4 +29,5 @@ __all__ = [
     "EnvironmentalMetric",
     "EconomicMetric",
     "GeneratedReport",
+    "ScientificAssumption",
 ]

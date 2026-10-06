@@ -140,10 +140,16 @@ docker compose up --build
 
 ## 7. Documentation Index
 
-Comprehensive technical documentation is maintained in the `docs/` folder:
+Comprehensive technical and scientific documentation is maintained in the `docs/` folder:
+- [Scientific Validation & Calculation Audit](docs/SCIENTIFIC_VALIDATION.md)
+- [Scientific Assumptions & Registry Specification](docs/SCIENTIFIC_ASSUMPTIONS.md)
+- [Data Provenance & Quality Indexing](docs/DATA_PROVENANCE.md)
+- [Satellite Integration & Provider Architecture](docs/SATELLITE_INTEGRATION.md)
+- [Production Deployment & Infrastructure Guide](docs/PRODUCTION_DEPLOYMENT.md)
+- [Reality Audit & System Verification](docs/REALITY_AUDIT.md)
+- [Final Acceptance Audit Matrix](docs/FINAL_ACCEPTANCE_AUDIT.md)
 - [Architecture & Modular Multi-River Design](docs/architecture.md)
 - [Installation Guide](docs/INSTALLATION.md)
-- [Production Deployment & Domain Setup](docs/deployment.md)
 - [REST API Reference](docs/api.md)
 - [Spatial Database & PostGIS Schema](docs/DATABASE.md)
 - [GIS Geodesic Cartography](docs/gis.md)
@@ -163,3 +169,4 @@ Comprehensive technical documentation is maintained in the `docs/` folder:
 ## 8. License
 
 Open-source under the [MIT License](LICENSE).
+
