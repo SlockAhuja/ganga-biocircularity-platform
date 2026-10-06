@@ -112,7 +112,12 @@ export interface WaterQualityObservation {
   tss_mg_l: number;
   temperature_c: number;
   turbidity_ntu: number;
-  conductivity_us_cm: number;
+  tds_mg_l?: number;
+  nitrate_no3_mg_l?: number;
+  phosphate_po4_mg_l?: number;
+  latitude?: number;
+  longitude?: number;
+  river_reach?: string;
   chromium_cr: number;
   lead_pb: number;
   cadmium_cd: number;
@@ -121,8 +126,12 @@ export interface WaterQualityObservation {
   arsenic_as: number;
   zinc_zn: number;
   copper_cu: number;
+  is_heavy_metal_measured?: number;
   source: string;
+  source_url?: string;
+  method?: string;
   quality_flag: string;
+  provenance_status?: ProvenanceType;
   compliance_status?: Record<string, string>;
 }
 

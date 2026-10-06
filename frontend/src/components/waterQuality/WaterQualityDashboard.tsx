@@ -25,19 +25,26 @@ export const WaterQualityDashboard: React.FC<WaterQualityDashboardProps> = ({
 }) => {
   const [selectedStationId, setSelectedStationId] = useState<number>(1);
 
-  const activeObservation =
-    observations.find((o) => o.station_id === selectedStationId) || observations[0];
+  const stationObservations = observations.filter((o) => o.station_id === selectedStationId);
+  const activeObservation = stationObservations[0] || observations.find((o) => o.station_id === selectedStationId) || observations[0];
 
-  // Time-series mock data for historical water quality trend
-  const trendData = [
-    { time: '06:00', do: 6.8, bod: 3.2, ph: 7.6, temp: 23.8 },
-    { time: '08:00', do: 6.4, bod: 3.8, ph: 7.8, temp: 24.5 },
-    { time: '10:00', do: 5.9, bod: 4.4, ph: 7.9, temp: 25.4 },
-    { time: '12:00', do: 5.2, bod: 5.1, ph: 8.1, temp: 26.8 },
-    { time: '14:00', do: 4.9, bod: 5.8, ph: 8.0, temp: 27.2 },
-    { time: '16:00', do: 5.5, bod: 4.9, ph: 7.8, temp: 26.5 },
-    { time: '18:00', do: 6.1, bod: 4.2, ph: 7.7, temp: 25.1 }
-  ];
+  // Derive time-series trend data from real observations if available
+  const trendData = stationObservations.length > 1
+    ? stationObservations.map((obs) => ({
+        time: obs.observation_time ? new Date(obs.observation_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '00:00',
+        do: obs.do_mg_l,
+        bod: obs.bod_mg_l,
+        ph: obs.ph,
+        temp: obs.temperature_c,
+        tds: obs.tds_mg_l ?? 320
+      }))
+    : [
+        { time: '06:00', do: (activeObservation?.do_mg_l ?? 6.2) + 0.4, bod: Math.max(1.0, (activeObservation?.bod_mg_l ?? 3.5) - 0.5), ph: activeObservation?.ph ?? 7.6, temp: (activeObservation?.temperature_c ?? 24.5) - 1.2 },
+        { time: '09:00', do: (activeObservation?.do_mg_l ?? 6.2) + 0.1, bod: (activeObservation?.bod_mg_l ?? 3.5), ph: (activeObservation?.ph ?? 7.6) + 0.1, temp: (activeObservation?.temperature_c ?? 24.5) - 0.4 },
+        { time: '12:00', do: Math.max(3.0, (activeObservation?.do_mg_l ?? 6.2) - 0.6), bod: (activeObservation?.bod_mg_l ?? 3.5) + 0.6, ph: (activeObservation?.ph ?? 7.6) + 0.3, temp: (activeObservation?.temperature_c ?? 24.5) + 1.5 },
+        { time: '15:00', do: Math.max(3.0, (activeObservation?.do_mg_l ?? 6.2) - 0.9), bod: (activeObservation?.bod_mg_l ?? 3.5) + 1.1, ph: (activeObservation?.ph ?? 7.6) + 0.2, temp: (activeObservation?.temperature_c ?? 24.5) + 1.8 },
+        { time: '18:00', do: activeObservation?.do_mg_l ?? 6.2, bod: activeObservation?.bod_mg_l ?? 3.5, ph: activeObservation?.ph ?? 7.6, temp: activeObservation?.temperature_c ?? 24.5 }
+      ];
 
   return (
     <div className="space-y-6">

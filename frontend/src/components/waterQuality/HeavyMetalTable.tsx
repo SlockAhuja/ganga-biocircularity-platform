@@ -1,12 +1,15 @@
 import React from 'react';
 import { WaterQualityObservation } from '../../types';
-import { ShieldCheck, AlertCircle, Info } from 'lucide-react';
+import { ShieldCheck, AlertCircle, Info, BookmarkCheck } from 'lucide-react';
+import { ScientificBadge } from '../common/ScientificBadge';
 
 interface HeavyMetalTableProps {
   observation?: WaterQualityObservation;
 }
 
 export const HeavyMetalTable: React.FC<HeavyMetalTableProps> = ({ observation }) => {
+  const isMeasured = observation?.is_heavy_metal_measured === 1;
+
   const metals = [
     {
       symbol: 'Cr',
@@ -92,27 +95,32 @@ export const HeavyMetalTable: React.FC<HeavyMetalTableProps> = ({ observation })
 
   return (
     <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs space-y-4">
-      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
         <div>
-          <h4 className="font-bold text-slate-900 text-sm">
-            Heavy Metal Contaminant Screening & Phytoremediation Uptake
-          </h4>
-          <p className="text-xs text-slate-500">
-            Assayed in hyacinth root/shoot dry biomass vs Fertilizer (Control) Order limits
+          <div className="flex items-center space-x-2">
+            <h4 className="font-bold text-slate-900 text-sm">
+              Trace & Heavy Metal Contaminant Benchmark Screening
+            </h4>
+            <ScientificBadge provenance={isMeasured ? 'OBSERVED' : 'LITERATURE'} />
+          </div>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Phytoremediation bioaccumulation baseline in hyacinth root/shoot dry biomass vs Fertilizer Control Order (FCO) safety thresholds.
           </p>
         </div>
-        <span className="text-xs font-mono bg-confluence-50 text-confluence-800 px-2.5 py-1 rounded-lg border border-confluence-200 font-semibold flex items-center space-x-1">
-          <ShieldCheck className="w-3.5 h-3.5 mr-1" />
-          <span>8 Elements Screened</span>
-        </span>
+        <div className="flex items-center space-x-2">
+          <span className="text-[11px] font-mono bg-purple-50 text-purple-700 px-2.5 py-1 rounded-lg border border-purple-200 font-semibold flex items-center">
+            <BookmarkCheck className="w-3.5 h-3.5 mr-1" />
+            <span>{isMeasured ? 'Lab In-Situ Assay' : 'Ganga Literature Baseline'}</span>
+          </span>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full text-left text-xs">
           <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold">
             <tr>
-              <th className="p-3">Contaminant Element</th>
-              <th className="p-3">Assayed Concentration</th>
+              <th className="p-3">Element</th>
+              <th className="p-3">Reference Concentration</th>
               <th className="p-3">Bioaccumulation Uptake Factor</th>
               <th className="p-3">Regulatory Reference Limit</th>
               <th className="p-3">Safety Status</th>
@@ -144,10 +152,10 @@ export const HeavyMetalTable: React.FC<HeavyMetalTableProps> = ({ observation })
         </table>
       </div>
 
-      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-start space-x-2 text-[11px] text-slate-500">
-        <Info className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+      <div className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-start space-x-2 text-[11px] text-slate-600">
+        <Info className="w-4 h-4 text-confluence-600 shrink-0 mt-0.5" />
         <p>
-          <strong>Scientific Protocol:</strong> Eichhornia crassipes actively sequesters heavy metals from urban/industrial drains into its root vacuoles. Digested vermicompost batches are blended and screened to ensure zero phytotoxicity prior to agricultural field application.
+          <strong>Provenance Protocol:</strong> Heavy-metal measurements are treated separately from real-time physical telemetry. Unless actual laboratory spectroscopy (AAS / ICP-MS) certified assays are imported via the Water Quality ingestion API, all trace metal values are strictly flagged as <em>LITERATURE BENCHMARKS</em> to maintain scientific integrity.
         </p>
       </div>
     </div>

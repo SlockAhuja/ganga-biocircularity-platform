@@ -2,12 +2,14 @@ import React from 'react';
 import { ProvenanceType } from '../../types';
 
 interface ScientificBadgeProps {
-  type: ProvenanceType;
+  type?: ProvenanceType;
+  provenance?: ProvenanceType;
   label?: string;
   size?: 'sm' | 'md';
 }
 
-export const ScientificBadge: React.FC<ScientificBadgeProps> = ({ type, label, size = 'sm' }) => {
+export const ScientificBadge: React.FC<ScientificBadgeProps> = ({ type, provenance, label, size = 'sm' }) => {
+  const effectiveType = provenance || type || 'DEMO';
   const styles: Record<ProvenanceType, { bg: string; text: string; border: string; defaultLabel: string }> = {
     OBSERVED: {
       bg: 'bg-emerald-50',
@@ -41,7 +43,7 @@ export const ScientificBadge: React.FC<ScientificBadgeProps> = ({ type, label, s
     }
   };
 
-  const current = styles[type] || styles.DEMO;
+  const current = styles[effectiveType] || styles.DEMO;
   const padding = size === 'sm' ? 'px-2 py-0.5 text-[10px]' : 'px-2.5 py-1 text-xs';
 
   return (

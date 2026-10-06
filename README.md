@@ -13,28 +13,43 @@
 
 ## 1. Production Architecture & Primary Domains
 
-BioRiver is structured into three clear endpoints:
-
-- **`https://bioriver.in`**: Public-facing website (Overview, Problem, Science, Bioeconomy, Impact, Partners, Contact)
-- **`https://app.bioriver.in`**: Authenticated scientific intelligence workbench (GIS Studio, Satellite Monitoring, Biomass/Bioenergy Simulators, Field Operations, Reports)
-- **`https://api.bioriver.in`**: REST API & Geospatial Data Service (`/api/v1/`, OpenAPI Swagger Docs at `/docs`)
+| Domain / URL | Role & Purpose | Deployment Status |
+|---|---|---|
+| **`https://slockahuja.github.io/ganga-biocircularity-platform/`** | GitHub Pages Live Frontend Distribution | **ACTIVE (Automated CI/CD Workflow)** |
+| **`https://bioriver.in`** | Public Portal & Research Landing Site | **DNS ACTION REQUIRED** (Registrar config pending) |
+| **`https://app.bioriver.in`** | Scientific Intelligence Workbench & GIS Studio | **DNS ACTION REQUIRED** (Cloud deployment target) |
+| **`https://api.bioriver.in`** | FastAPI REST & PostGIS Engine (`/api/v1`, `/docs`) | **DNS ACTION REQUIRED** (Cloud Run / VPS target) |
 
 ---
 
 ## 2. The Seven Fundamental River Questions
 
-BioRiver answers seven questions across the riverine bioeconomy value chain:
+BioRiver answers seven core questions across the riverine bioeconomy value chain:
 1. **WHERE** is water hyacinth located? $\rightarrow$ Sentinel-2 Remote Sensing & Geodesic GIS Mapping
-2. **WHAT** is happening in the river? $\rightarrow$ Limnological multi-parameter & heavy metals water quality tracking
+2. **WHAT** is happening in the river? $\rightarrow$ Limnological multi-parameter CPCB telemetry & heavy metal literature benchmarks
 3. **HOW MUCH** biomass exists? $\rightarrow$ Allometric fresh and dry solids quantification engine
 4. **HOW MUCH** can realistically be harvested? $\rightarrow$ Field operations, mobile logs & mechanical harvesting logistics
-5. **WHAT** resources can be recovered? $\rightarrow$ Anaerobic biomethane (Bio-CNG), enriched vermicompost, and liquid vermiwash
+5. **WHAT** resources can be recovered? $\rightarrow$ Anaerobic biomethane (SATAT Bio-CNG), enriched vermicompost, and liquid vermiwash
 6. **WHAT** is the environmental & economic impact? $\rightarrow$ IPCC Tier-2 LCA carbon accounting & multi-stream economic cost-benefit analysis
-7. **HOW** can researchers document and report results? $\rightarrow$ Automated PDF report compilation and GeoJSON/CSV exports
+7. **HOW** can researchers document results? $\rightarrow$ Automated PDF report compilation and GeoJSON/CSV exports
 
 ---
 
-## 3. End-to-End System Workflow
+## 3. Scientific Provenance Architecture
+
+BioRiver enforces a strict data provenance hierarchy across all modules:
+
+- **`OBSERVED`**: Real physical in-situ sensor telemetry or official laboratory assays (e.g., CPCB NWMP water quality).
+- **`LITERATURE`**: Peer-reviewed scientific baselines (e.g., historical heavy metal bioaccumulation factors, AAS benchmarks).
+- **`ESTIMATED`**: Satellite-derived allometric extrapolations (e.g., Sentinel-2 MSI NDVI/MNDWI hyacinth canopy tonnage).
+- **`MODELED`**: Theoretical reaction balances & simulations (e.g., AD methane yield, IPCC Tier-2 LCA emission offsets).
+- **`DEMO`**: Offline sandbox synthetic data used strictly during local disconnected development.
+
+> **Note on Trace / Heavy Metals:** Dissolved metals (Cr, Pb, Cd, Ni, Hg, As, Zn, Cu) remain strictly labeled as `LITERATURE BENCHMARK` unless verified by laboratory AAS/ICP-MS certification.
+
+---
+
+## 4. End-to-End System Workflow
 
 ```
                     GANGA RIVER (Prayagraj Confluence)
@@ -75,7 +90,7 @@ BioRiver answers seven questions across the riverine bioeconomy value chain:
 
 ---
 
-## 4. Technology Stack
+## 5. Technology Stack
 
 ### Frontend (`frontend/`)
 - **Framework**: React 18 + Vite with TypeScript
@@ -89,11 +104,12 @@ BioRiver answers seven questions across the riverine bioeconomy value chain:
 - **Validation**: Pydantic v2
 - **Data Persistence**: SQLAlchemy 2.0 with PostGIS / SQLite support
 - **Geospatial Processing**: Shapely, WGS84 geodesic spherical excess polygon calculations
+- **Satellite Provider**: Google Earth Engine (Project: `camera-503319`, Dataset: `COPERNICUS/S2_SR_HARMONIZED`)
 - **Reporting Engine**: ReportLab PDF generator
 
 ---
 
-## 5. Quick Start & Local Execution
+## 6. Quick Start & Local Execution
 
 ### Option A: Local Development
 
@@ -109,7 +125,7 @@ python -m venv venv
 # Windows: .\venv\Scripts\activate | Linux: source venv/bin/activate
 pip install -r requirements.txt
 python scripts/seed_demo_data.py
-python -m pytest tests
+python -m pytest tests -v
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
 # 3. In a second terminal, run Frontend
@@ -127,7 +143,7 @@ docker compose up --build
 
 ---
 
-## 6. Demo Accounts & Credentials
+## 7. Development & Demo Accounts *(DEVELOPMENT / DEMO ONLY)*
 
 | Role | Email | Password | Access Capabilities |
 |---|---|---|---|
@@ -138,7 +154,7 @@ docker compose up --build
 
 ---
 
-## 7. Documentation Index
+## 8. Documentation Index
 
 Comprehensive technical and scientific documentation is maintained in the `docs/` folder:
 - [Scientific Validation & Calculation Audit](docs/SCIENTIFIC_VALIDATION.md)
@@ -166,7 +182,6 @@ Comprehensive technical and scientific documentation is maintained in the `docs/
 
 ---
 
-## 8. License
+## 9. License
 
 Open-source under the [MIT License](LICENSE).
-
