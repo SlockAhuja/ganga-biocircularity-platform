@@ -48,7 +48,12 @@ import { MethodologyView } from './views/MethodologyView';
 import { AdminView } from './views/AdminView';
 
 export function App() {
-  const [viewMode, setViewMode] = useState<'app' | 'landing'>('app');
+  const isPublicLandingHost = typeof window !== 'undefined' && (
+    window.location.hostname === 'bioriver.in' ||
+    window.location.hostname === 'www.bioriver.in' ||
+    window.location.search.includes('view=landing')
+  );
+  const [viewMode, setViewMode] = useState<'app' | 'landing'>(isPublicLandingHost ? 'landing' : 'app');
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
   const [currentRole, setCurrentRole] = useState<UserRole>('RESEARCHER');
   const [isMethodologyOpen, setIsMethodologyOpen] = useState(false);

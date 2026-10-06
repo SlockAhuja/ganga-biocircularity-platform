@@ -28,6 +28,13 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
   onEnterPlatform,
   onOpenLogin
 }) => {
+  const handleEnter = () => {
+    if (typeof window !== 'undefined' && (window.location.hostname === 'bioriver.in' || window.location.hostname === 'www.bioriver.in')) {
+      window.location.href = 'https://app.bioriver.in';
+    } else {
+      onEnterPlatform();
+    }
+  };
   return (
     <div className="min-h-screen bg-[#F6FAF7] text-[#17211B] flex flex-col font-sans">
       {/* Top Header / Public Nav */}
@@ -72,7 +79,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
               Sign In
             </button>
             <button
-              onClick={onEnterPlatform}
+              onClick={handleEnter}
               className="px-4 py-2.5 bg-[#2E7D5B] hover:bg-[#246549] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center space-x-1.5"
             >
               <span>OPEN PLATFORM</span>
@@ -359,7 +366,7 @@ export const LandingPageView: React.FC<LandingPageViewProps> = ({
           </p>
           <div className="pt-2">
             <button
-              onClick={onEnterPlatform}
+              onClick={handleEnter}
               className="px-8 py-4 bg-white text-[#17211B] hover:bg-emerald-50 font-black text-sm rounded-xl shadow-xl transition-all inline-flex items-center space-x-2"
             >
               <span>ENTER BIORIVER PLATFORM</span>
