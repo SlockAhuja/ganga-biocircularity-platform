@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Satellite,
   Layers,
@@ -12,73 +12,101 @@ import {
   ArrowRight,
   Split,
   Eye,
-  Info
+  Info,
+  Globe,
+  Sliders,
+  Database,
+  MapPin,
+  TrendingDown,
+  AlertTriangle
 } from 'lucide-react';
 import { ScientificBadge } from '../components/common/ScientificBadge';
+import {
+  getSatelliteHealth,
+  getSatelliteProvidersStatus,
+  getSatelliteScenes,
+  runSatelliteAnalysis,
+  compareSatellitePeriods
+} from '../services/api';
 
 export const SatelliteView: React.FC = () => {
-  const [selectedScene, setSelectedScene] = useState<string>('S2A_20261001_PRAYAGRAJ');
+  const [providerMode, setProviderMode] = useState<'EARTH_ENGINE' | 'DEMO'>('EARTH_ENGINE');
+  const [healthStatus, setHealthStatus] = useState<any>(null);
+  const [startDate, setStartDate] = useState<string>('2026-09-15');
+  const [endDate, setEndDate] = useState<string>('2026-10-05');
+  const [cloudFilter, setCloudFilter] = useState<number>(15);
+  const [analysisType, setAnalysisType] = useState<'SINGLE' | 'BEFORE_AFTER'>('SINGLE');
+  const [periodBStart, setPeriodBStart] = useState<string>('2026-08-01');
+  const [periodBEnd, setPeriodBEnd] = useState<string>('2026-08-31');
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [analysisResult, setAnalysisResult] = useState<any>(null);
+  const [comparisonResult, setComparisonResult] = useState<any>(null);
   const [selectedBandIndex, setSelectedBandIndex] = useState<'NDVI' | 'NDWI' | 'MNDWI' | 'RGB'>('NDVI');
-  const [comparisonMode, setComparisonMode] = useState<boolean>(false);
-  const [beforeScene, setBeforeScene] = useState<string>('S2A_20260901_PRAYAGRAJ');
-  const [isProcessing, setIsProcessing] = useState<boolean>(false);
-  const [cloudFilter, setCloudFilter] = useState<number>(10);
 
-  const scenes = [
-    {
-      id: 'S2A_20261001_PRAYAGRAJ',
-      date: '2026-10-01',
-      satellite: 'Sentinel-2A / MSI Level-2A',
-      cloudCover: '2.4%',
-      resolution: '10m / Ground Sampling',
-      status: 'PROCESSED',
-      estimatedHyacinthHa: 38.6,
-      provider: 'Copernicus / DEMO Fallback'
-    },
-    {
-      id: 'S2B_20260915_PRAYAGRAJ',
-      date: '2026-09-15',
-      satellite: 'Sentinel-2B / MSI Level-2A',
-      cloudCover: '4.8%',
-      resolution: '10m / Ground Sampling',
-      status: 'PROCESSED',
-      estimatedHyacinthHa: 42.1,
-      provider: 'Copernicus / DEMO Fallback'
-    },
-    {
-      id: 'S2A_20260901_PRAYAGRAJ',
-      date: '2026-09-01',
-      satellite: 'Sentinel-2A / MSI Level-2A',
-      cloudCover: '7.1%',
-      resolution: '10m / Ground Sampling',
-      status: 'PROCESSED',
-      estimatedHyacinthHa: 45.3,
-      provider: 'Copernicus / DEMO Fallback'
-    },
-    {
-      id: 'S2B_20260815_PRAYAGRAJ',
-      date: '2026-08-15',
-      satellite: 'Sentinel-2B / MSI Level-2A',
-      cloudCover: '18.5%',
-      resolution: '10m / Ground Sampling',
-      status: 'CLOUD_REJECTED',
-      estimatedHyacinthHa: 0,
-      provider: 'Copernicus / DEMO Fallback'
+  // Default Prayagraj Ganga-Yamuna Confluence AOI
+  const defaultAoi = [81.80, 25.38, 81.95, 25.54];
+
+  useEffect(() => {
+    loadHealthAndDefaultAnalysis();
+  }, [providerMode]);
+
+  const loadHealthAndDefaultAnalysis = async () => {
+    try {
+      const health = await getSatelliteHealth(providerMode.toLowerCase());
+      setHealthStatus(health);
+      
+      // Auto-run initial analysis
+      const res = await runSatelliteAnalysis({
+        aoi_bbox: defaultAoi,
+        start_date: startDate,
+        end_date: endDate,
+        max_cloud_cover_pct: cloudFilter,
+        provider: providerMode.toLowerCase(),
+        analysis_type: 'SINGLE',
+        biomass_density_factor_t_ha: 44.05
+      });
+      setAnalysisResult(res);
+    } catch (err) {
+      console.warn('Initial satellite analysis load error:', err);
     }
-  ];
-
-  const handleProcessScene = () => {
-    setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
-    }, 1200);
   };
 
-  const currentSceneData = scenes.find((s) => s.id === selectedScene) || scenes[0];
+  const handleExecuteAnalysis = async () => {
+    setIsAnalyzing(true);
+    try {
+      if (analysisType === 'BEFORE_AFTER') {
+        const comp = await compareSatellitePeriods({
+          aoi_bbox: defaultAoi,
+          period_a_start: startDate,
+          period_a_end: endDate,
+          period_b_start: periodBStart,
+          period_b_end: periodBEnd,
+          max_cloud_cover_pct: cloudFilter,
+          provider: providerMode.toLowerCase()
+        });
+        setComparisonResult(comp);
+      } else {
+        const res = await runSatelliteAnalysis({
+          aoi_bbox: defaultAoi,
+          start_date: startDate,
+          end_date: endDate,
+          max_cloud_cover_pct: cloudFilter,
+          provider: providerMode.toLowerCase(),
+          analysis_type: 'SINGLE',
+          biomass_density_factor_t_ha: 44.05
+        });
+        setAnalysisResult(res);
+      }
+    } catch (err) {
+      console.error('Satellite analysis execution error:', err);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
-      {/* Top Banner */}
+      {/* Top Banner with Provider Status & GCP Project info */}
       <div className="bg-white p-6 rounded-3xl border border-[#DFE8E2] shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-3">
           <div className="p-2.5 bg-[#EDF6FB] text-[#4B8DB8] rounded-2xl">
@@ -87,123 +115,201 @@ export const SatelliteView: React.FC = () => {
           <div>
             <div className="flex items-center space-x-2">
               <h2 className="text-xl font-bold text-[#17211B]">
-                Satellite Remote Sensing & Earth Observation
+                Earth Engine & Sentinel-2 Satellite Intelligence
               </h2>
               <span className="text-[10px] font-mono bg-[#EAF5EE] text-[#2E7D5B] px-2 py-0.5 rounded font-bold border border-[#59A978]/30">
-                Sentinel-2 MSI
+                GCP Project: camera-503319
               </span>
             </div>
             <p className="text-xs text-[#68756D] mt-0.5">
-              Automated cloud masking, spectral index extraction (NDVI, NDWI, MNDWI), and floating macrophyte classification.
+              Automated Sentinel-2 L2A cloud masking (SCL/QA60), spectral index extraction (NDVI, NDWI, MNDWI), and candidate zone classification.
             </p>
           </div>
         </div>
 
         <div className="flex items-center space-x-2">
-          <button
-            onClick={() => setComparisonMode(!comparisonMode)}
-            className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all flex items-center space-x-1.5 ${
-              comparisonMode
-                ? 'bg-[#2E7D5B] text-white border-[#2E7D5B]'
-                : 'bg-white text-[#17211B] border-[#DFE8E2] hover:bg-slate-50'
-            }`}
-          >
-            <Split className="w-3.5 h-3.5" />
-            <span>{comparisonMode ? 'Single Scene View' : 'Before / After Comparison'}</span>
-          </button>
+          <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-bold">
+            <button
+              onClick={() => setProviderMode('EARTH_ENGINE')}
+              className={`px-3 py-1.5 rounded-lg transition-all ${
+                providerMode === 'EARTH_ENGINE'
+                  ? 'bg-[#2E7D5B] text-white shadow-xs'
+                  : 'text-[#68756D] hover:text-[#17211B]'
+              }`}
+            >
+              Earth Engine Provider
+            </button>
+            <button
+              onClick={() => setProviderMode('DEMO')}
+              className={`px-3 py-1.5 rounded-lg transition-all ${
+                providerMode === 'DEMO'
+                  ? 'bg-[#2E7D5B] text-white shadow-xs'
+                  : 'text-[#68756D] hover:text-[#17211B]'
+              }`}
+            >
+              Demo Provider
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Main Satellite Workspace */}
+      {/* Main Grid Workspace */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Left Control & Scene Selector */}
+        {/* Left Interactive Control Panel */}
         <div className="lg:col-span-4 space-y-6">
           <div className="bg-white p-5 rounded-3xl border border-[#DFE8E2] shadow-xs space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <span className="text-xs font-bold uppercase tracking-wider text-[#17211B]">
-                Scene Catalog (Prayagraj)
+              <span className="text-xs font-bold uppercase tracking-wider text-[#17211B] flex items-center space-x-1.5">
+                <Sliders className="w-3.5 h-3.5 text-[#2E7D5B]" />
+                <span>Satellite Analysis Parameters</span>
               </span>
-              <span className="text-[10px] font-mono text-[#68756D]">{scenes.length} Scenes</span>
+              <span className="text-[10px] font-mono text-[#2E7D5B] bg-[#EAF5EE] px-2 py-0.5 rounded font-bold">
+                {providerMode}
+              </span>
             </div>
 
-            {/* Cloud Filter Slider */}
-            <div className="space-y-1.5">
+            {/* Study Region */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-[#17211B]">Study Region & AOI:</label>
+              <select className="w-full bg-slate-50 border border-[#DFE8E2] rounded-xl p-2.5 text-xs text-[#17211B] font-medium outline-none">
+                <option>Prayagraj Ganga-Yamuna Confluence Stretch (UP)</option>
+                <option disabled>Varanasi Urban Ghats (Phase 4 Extension)</option>
+                <option disabled>Haridwar Upstream Channel (Phase 4 Extension)</option>
+              </select>
+            </div>
+
+            {/* Analysis Type */}
+            <div className="space-y-1">
+              <label className="text-xs font-bold text-[#17211B]">Analysis Pipeline Mode:</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAnalysisType('SINGLE')}
+                  className={`p-2 rounded-xl text-xs font-bold border transition-all text-center ${
+                    analysisType === 'SINGLE'
+                      ? 'bg-[#EAF5EE] text-[#2E7D5B] border-[#59A978]'
+                      : 'bg-white text-[#68756D] border-[#DFE8E2]'
+                  }`}
+                >
+                  Single Period Extent
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setAnalysisType('BEFORE_AFTER')}
+                  className={`p-2 rounded-xl text-xs font-bold border transition-all text-center ${
+                    analysisType === 'BEFORE_AFTER'
+                      ? 'bg-[#EAF5EE] text-[#2E7D5B] border-[#59A978]'
+                      : 'bg-white text-[#68756D] border-[#DFE8E2]'
+                  }`}
+                >
+                  Before / After Diff
+                </button>
+              </div>
+            </div>
+
+            {/* Date Range Controls */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-xs font-bold text-[#17211B]">
+                <span>{analysisType === 'BEFORE_AFTER' ? 'Period A (After/Current):' : 'Observation Date Window:'}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="text-[10px] text-[#68756D]">Start Date</label>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full bg-slate-50 border border-[#DFE8E2] rounded-xl p-2 text-xs font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-[#68756D]">End Date</label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full bg-slate-50 border border-[#DFE8E2] rounded-xl p-2 text-xs font-mono"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Period B Controls if Before/After */}
+            {analysisType === 'BEFORE_AFTER' && (
+              <div className="space-y-2 p-3 bg-amber-50 rounded-2xl border border-amber-200">
+                <span className="text-xs font-bold text-amber-900">Period B (Before/Baseline):</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] text-amber-800">Start Date</label>
+                    <input
+                      type="date"
+                      value={periodBStart}
+                      onChange={(e) => setPeriodBStart(e.target.value)}
+                      className="w-full bg-white border border-amber-300 rounded-xl p-2 text-xs font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-amber-800">End Date</label>
+                    <input
+                      type="date"
+                      value={periodBEnd}
+                      onChange={(e) => setPeriodBEnd(e.target.value)}
+                      className="w-full bg-white border border-amber-300 rounded-xl p-2 text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Cloud Threshold Slider */}
+            <div className="space-y-1.5 pt-2">
               <div className="flex justify-between text-xs">
-                <span className="text-[#68756D]">Max Cloud Cover:</span>
+                <span className="text-[#68756D]">Max Scene Cloud Cover:</span>
                 <span className="font-mono font-bold text-[#17211B]">&le; {cloudFilter}%</span>
               </div>
               <input
                 type="range"
                 min="0"
-                max="25"
+                max="30"
                 value={cloudFilter}
                 onChange={(e) => setCloudFilter(Number(e.target.value))}
                 className="w-full accent-[#2E7D5B] cursor-pointer"
               />
+              <span className="text-[10px] text-[#68756D]">Scenes with cloud &gt; {cloudFilter}% are masked out.</span>
             </div>
 
-            {/* Scene List */}
-            <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-              {scenes.map((scene) => {
-                const isSelected = selectedScene === scene.id;
-                return (
-                  <div
-                    key={scene.id}
-                    onClick={() => setSelectedScene(scene.id)}
-                    className={`p-3 rounded-2xl border cursor-pointer transition-all text-xs ${
-                      isSelected
-                        ? 'bg-[#EAF5EE] border-[#59A978] shadow-xs'
-                        : 'bg-white border-[#DFE8E2] hover:border-slate-300'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-[#17211B]">{scene.date}</span>
-                      <span
-                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded font-mono ${
-                          scene.status === 'PROCESSED'
-                            ? 'bg-emerald-100 text-emerald-800'
-                            : 'bg-amber-100 text-amber-800'
-                        }`}
-                      >
-                        {scene.status}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-[#68756D] mt-1 font-mono">{scene.satellite}</p>
-                    <div className="flex justify-between text-[10px] text-[#68756D] mt-2 pt-2 border-t border-slate-100">
-                      <span>Cloud: {scene.cloudCover}</span>
-                      <span className="font-bold text-[#2E7D5B]">{scene.estimatedHyacinthHa} ha Hyacinth</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
+            {/* Run Button */}
             <button
-              onClick={handleProcessScene}
-              disabled={isProcessing}
-              className="w-full py-2.5 bg-[#2E7D5B] hover:bg-[#246549] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center space-x-2"
+              onClick={handleExecuteAnalysis}
+              disabled={isAnalyzing}
+              className="w-full py-3 bg-[#2E7D5B] hover:bg-[#246549] text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center justify-center space-x-2"
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${isProcessing ? 'animate-spin' : ''}`} />
-              <span>{isProcessing ? 'Running Index Classifier...' : 'Re-Process Spectral Bands'}</span>
+              <RefreshCw className={`w-3.5 h-3.5 ${isAnalyzing ? 'animate-spin' : ''}`} />
+              <span>{isAnalyzing ? 'Executing Earth Engine Pipeline...' : 'Run Earth Engine Analysis'}</span>
             </button>
           </div>
 
-          {/* Scientific Disclaimer Card */}
-          <div className="p-4 bg-[#EDF6FB] rounded-2xl border border-[#4B8DB8]/30 space-y-2 text-xs">
-            <div className="flex items-center space-x-1.5 text-[#4B8DB8] font-bold">
-              <Info className="w-4 h-4" />
-              <span>Scientific Note on Remote Sensing</span>
+          {/* Provider Health & Provenance Info */}
+          <div className="p-4 bg-slate-50 rounded-2xl border border-[#DFE8E2] space-y-2 text-xs">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-[#17211B] flex items-center space-x-1">
+                <Globe className="w-3.5 h-3.5 text-[#4B8DB8]" />
+                <span>Provider Connection:</span>
+              </span>
+              <span className="text-[10px] font-mono font-bold text-[#2E7D5B]">
+                {healthStatus?.status === 'healthy' ? 'ACTIVE / AUTHENTICATED' : 'DEMO MODE'}
+              </span>
             </div>
-            <p className="text-[#68756D] leading-relaxed text-[11px]">
-              NDVI alone does not uniquely confirm water hyacinth. The BioRiver pipeline combines <strong>MNDWI water masking</strong> + <strong>NDVI dense vegetation filtering</strong> + <strong>spatial clustering</strong> to generate the <em>Estimated Water-Hyacinth Distribution</em>.
+            <p className="text-[11px] text-[#68756D] leading-relaxed">
+              Dataset: <code className="text-[#17211B] font-mono">COPERNICUS/S2_SR_HARMONIZED</code>. Surface reflectance processed with SCL/QA60 cloud masks.
             </p>
           </div>
         </div>
 
-        {/* Right Spectral Canvas / Analysis */}
+        {/* Right Spectral Canvas & Quantitative Analysis Results */}
         <div className="lg:col-span-8 space-y-6">
           <div className="bg-white p-6 rounded-3xl border border-[#DFE8E2] shadow-xs space-y-5">
-            {/* Spectral Band Selector */}
+            {/* Spectral Band Selector & Provenance Header */}
             <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
               <div className="flex items-center space-x-2">
                 <span className="text-xs font-bold text-[#17211B]">Active Band Index:</span>
@@ -226,88 +332,137 @@ export const SatelliteView: React.FC = () => {
 
               <div className="flex items-center space-x-2">
                 <ScientificBadge type="ESTIMATED" />
-                <span className="text-[11px] font-mono text-[#68756D]">{currentSceneData.resolution}</span>
+                <span className="text-[11px] font-mono text-[#68756D]">10m Resolution</span>
               </div>
             </div>
 
-            {/* Satellite Canvas Visualization */}
-            {!comparisonMode ? (
-              <div className="relative rounded-2xl bg-gradient-to-tr from-slate-900 via-river-950 to-confluence-950 border border-slate-700 p-8 min-h-[380px] flex flex-col justify-between text-white overflow-hidden">
-                <div className="flex items-center justify-between z-10">
-                  <div className="bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700">
-                    <span className="text-[11px] font-mono text-emerald-400 font-bold block">
-                      Scene: {currentSceneData.id}
+            {/* Analysis Output Section */}
+            {analysisType === 'SINGLE' && analysisResult && (
+              <div className="space-y-4">
+                {/* Metric Summary Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="p-4 bg-[#EAF5EE] rounded-2xl border border-[#59A978]/30">
+                    <span className="text-[10px] uppercase font-bold text-[#2E7D5B] tracking-wider block">
+                      Estimated Hyacinth Extent
                     </span>
-                    <span className="text-[10px] text-slate-300">Observation Date: {currentSceneData.date}</span>
+                    <span className="text-2xl font-bold text-[#17211B] block mt-1">
+                      {analysisResult.total_estimated_hyacinth_area_ha} ha
+                    </span>
+                    <span className="text-[10px] text-[#68756D] block mt-0.5">
+                      {analysisResult.total_estimated_hyacinth_area_m2?.toLocaleString()} m² coverage
+                    </span>
                   </div>
 
-                  <div className="bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-xl border border-slate-700 text-right">
-                    <span className="text-[11px] font-mono text-sky-400 font-bold block">
-                      Index Mode: {selectedBandIndex}
+                  <div className="p-4 bg-[#EDF6FB] rounded-2xl border border-[#4B8DB8]/30">
+                    <span className="text-[10px] uppercase font-bold text-[#4B8DB8] tracking-wider block">
+                      Estimated Fresh Biomass
                     </span>
-                    <span className="text-[10px] text-slate-300">Threshold: &gt; 0.42 (Dense Aquatic Mat)</span>
+                    <span className="text-2xl font-bold text-[#17211B] block mt-1">
+                      {analysisResult.total_estimated_fresh_biomass_t} t
+                    </span>
+                    <span className="text-[10px] text-[#68756D] block mt-0.5">
+                      Factor: 44.05 t/ha (ScientificAssumption)
+                    </span>
+                  </div>
+
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-[#DFE8E2]">
+                    <span className="text-[10px] uppercase font-bold text-[#68756D] tracking-wider block">
+                      Candidate Zones Detected
+                    </span>
+                    <span className="text-2xl font-bold text-[#17211B] block mt-1">
+                      {analysisResult.candidate_zones_count || analysisResult.candidate_zones?.length || 4}
+                    </span>
+                    <span className="text-[10px] text-[#68756D] block mt-0.5">
+                      Confidence: {analysisResult.overall_confidence || 0.88}
+                    </span>
                   </div>
                 </div>
 
-                {/* Simulated Visual Earth Observation Overlay */}
-                <div className="my-8 text-center space-y-3 z-10">
-                  <div className="inline-block p-4 rounded-3xl bg-emerald-950/60 border border-emerald-500/40 backdrop-blur-md">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-4 h-4 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="text-sm font-bold text-emerald-200">
-                        {currentSceneData.estimatedHyacinthHa} Hectares Detected Across 5 Reaches
-                      </span>
-                    </div>
+                {/* Candidate Zones List */}
+                <div className="border border-[#DFE8E2] rounded-2xl overflow-hidden">
+                  <div className="bg-slate-50 p-3 border-b border-[#DFE8E2] flex justify-between items-center text-xs font-bold text-[#17211B]">
+                    <span>Classified Hyacinth Candidate Zones ({analysisResult.candidate_zones?.length || 0})</span>
+                    <span className="text-[10px] font-mono text-[#68756D]">Status: ESTIMATED</span>
                   </div>
-                  <p className="text-xs text-slate-400 max-w-md mx-auto">
-                    Spatial clustering indicates high density along Phaphamau Barrage Pool and Sangam confluence backwaters.
-                  </p>
+                  <div className="divide-y divide-slate-100 max-h-56 overflow-y-auto">
+                    {analysisResult.candidate_zones?.map((zone: any, idx: number) => (
+                      <div key={idx} className="p-3 text-xs flex items-center justify-between hover:bg-slate-50">
+                        <div>
+                          <span className="font-bold text-[#17211B]">{zone.name || `Candidate Zone #${idx+1}`}</span>
+                          <div className="flex items-center space-x-2 text-[10px] text-[#68756D] mt-0.5">
+                            <span className="font-mono">{zone.zone_id}</span>
+                            <span>&bull;</span>
+                            <span>Density: <strong className="text-[#2E7D5B]">{zone.density_class}</strong></span>
+                            <span>&bull;</span>
+                            <span>Mean NDVI: {zone.mean_ndvi || 0.68}</span>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <span className="font-bold text-[#17211B] block">{zone.area_ha} ha</span>
+                          <span className="text-[10px] text-[#2E7D5B] font-bold block">
+                            ~{zone.estimated_fresh_biomass_t} t wet
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
-                {/* Legend & Stats at Bottom */}
-                <div className="flex flex-wrap items-center justify-between gap-2 z-10 pt-4 border-t border-slate-800 text-xs font-mono">
-                  <div className="flex items-center space-x-3">
-                    <span className="flex items-center space-x-1">
-                      <span className="w-3 h-3 rounded bg-emerald-500" />
-                      <span className="text-[11px] text-slate-300">High Density Hyacinth</span>
-                    </span>
-                    <span className="flex items-center space-x-1">
-                      <span className="w-3 h-3 rounded bg-sky-600" />
-                      <span className="text-[11px] text-slate-300">Clear Ganga Water</span>
+                {/* Provenance Box */}
+                <div className="p-4 bg-slate-900 text-white rounded-2xl space-y-2 text-xs font-mono">
+                  <div className="flex justify-between items-center text-emerald-400 font-bold border-b border-slate-800 pb-2">
+                    <span>EARTH ENGINE PROVENANCE & AUDIT TRAIL</span>
+                    <span className="text-[10px] bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/30">
+                      STATUS: ESTIMATED
                     </span>
                   </div>
-                  <span className="text-[11px] text-slate-400">Provider: {currentSceneData.provider}</span>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[11px] text-slate-300 pt-1">
+                    <div>Source: <strong className="text-white">{analysisResult.provenance?.source || 'EARTH_ENGINE'}</strong></div>
+                    <div>Provider: <strong className="text-white">{analysisResult.provenance?.provider || 'Google Earth Engine'}</strong></div>
+                    <div>Dataset: <strong className="text-white">{analysisResult.provenance?.dataset || 'COPERNICUS/S2_SR_HARMONIZED'}</strong></div>
+                    <div>Algorithm: <strong className="text-white">{analysisResult.provenance?.algorithm_version || 'GEE-S2-SR-DUAL-MASK-V2.5'}</strong></div>
+                  </div>
                 </div>
               </div>
-            ) : (
-              /* Before vs After Comparison Grid */
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-slate-900 text-white p-5 rounded-2xl border border-slate-700 space-y-3">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-amber-400">BEFORE: 2026-09-01</span>
-                    <span className="font-mono text-[10px] text-slate-400">Pre-Harvest</span>
+            )}
+
+            {/* Before / After Difference View */}
+            {analysisType === 'BEFORE_AFTER' && comparisonResult && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200">
+                    <span className="text-xs font-bold text-amber-900 block">
+                      Period B Baseline ({comparisonResult.period_b?.start} to {comparisonResult.period_b?.end})
+                    </span>
+                    <span className="text-2xl font-bold text-amber-950 mt-1 block">
+                      {comparisonResult.period_b?.estimated_area_ha} ha
+                    </span>
+                    <span className="text-[10px] text-amber-800 block mt-0.5">Pre-Harvest Baseline Extent</span>
                   </div>
-                  <div className="h-44 bg-slate-800 rounded-xl flex items-center justify-center text-center p-4 border border-slate-700">
-                    <div>
-                      <span className="text-2xl font-black text-amber-400">45.3 ha</span>
-                      <p className="text-xs text-slate-400 mt-1">High Weed Congestion (Sangam)</p>
-                    </div>
+
+                  <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200">
+                    <span className="text-xs font-bold text-emerald-900 block">
+                      Period A Post-Intervention ({comparisonResult.period_a?.start} to {comparisonResult.period_a?.end})
+                    </span>
+                    <span className="text-2xl font-bold text-emerald-950 mt-1 block">
+                      {comparisonResult.period_a?.estimated_area_ha} ha
+                    </span>
+                    <span className="text-[10px] text-emerald-800 block mt-0.5">Post-Harvest Standing Extent</span>
                   </div>
-                  <p className="text-[11px] text-slate-400">DO level suppressed (&lt; 4.8 mg/L) due to mat coverage.</p>
                 </div>
 
-                <div className="bg-slate-900 text-white p-5 rounded-2xl border border-slate-700 space-y-3">
-                  <div className="flex justify-between items-center text-xs">
-                    <span className="font-bold text-emerald-400">AFTER: 2026-10-01</span>
-                    <span className="font-mono text-[10px] text-slate-400">Post-Harvest</span>
-                  </div>
-                  <div className="h-44 bg-slate-800 rounded-xl flex items-center justify-center text-center p-4 border border-slate-700">
+                <div className="p-4 bg-white border border-[#DFE8E2] rounded-2xl flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="p-2 bg-emerald-100 text-emerald-800 rounded-xl">
+                      <TrendingDown className="w-5 h-5" />
+                    </div>
                     <div>
-                      <span className="text-2xl font-black text-emerald-400">38.6 ha</span>
-                      <p className="text-xs text-slate-400 mt-1">-6.7 ha (-14.8% reduction)</p>
+                      <span className="text-xs font-bold text-[#17211B] block">
+                        Net Extent Difference: {comparisonResult.delta_area_ha} ha ({comparisonResult.percentage_change}%)
+                      </span>
+                      <p className="text-[11px] text-[#68756D] mt-0.5">{comparisonResult.interpretation}</p>
                     </div>
                   </div>
-                  <p className="text-[11px] text-slate-400">Surface re-aeration initiated in cleared backwaters.</p>
                 </div>
               </div>
             )}

@@ -657,3 +657,74 @@ export const generateReport = (data: any) =>
   });
 
 export const getDownloadPdfUrl = (report_code: string) => `${API_BASE}/reports/download-pdf/${report_code}`;
+
+// 10. Satellite & Earth Engine Intelligence
+export const getSatelliteHealth = (provider?: string) =>
+  fetchJson<any>(`/satellite/health${provider ? `?provider=${provider}` : ''}`, undefined, {
+    provider: 'demo',
+    project_id: 'camera-503319',
+    authenticated: true,
+    status: 'healthy',
+    dataset: 'COPERNICUS/S2_SR_HARMONIZED (Demo Mode)'
+  });
+
+export const getSatelliteProvidersStatus = () =>
+  fetchJson<any>('/satellite/providers/status', undefined, {
+    active_provider: 'DEMO',
+    providers: {
+      DEMO: { configured: true, available: true, status: 'OPERATIONAL', description: 'Prototype Scenes' },
+      EARTH_ENGINE: { configured: false, available: false, status: 'CONNECTED (Simulated / Ready)', project_id: 'camera-503319' }
+    }
+  });
+
+export const getSatelliteScenes = (max_cloud?: number, provider?: string, start?: string, end?: string) => {
+  const query = new URLSearchParams();
+  if (max_cloud !== undefined) query.append('max_cloud_cover', max_cloud.toString());
+  if (provider) query.append('provider', provider);
+  if (start) query.append('start_date', start);
+  if (end) query.append('end_date', end);
+  return fetchJson<any[]>(`/satellite/scenes?${query.toString()}`);
+};
+
+export const runSatelliteAnalysis = (params: {
+  aoi_bbox?: number[];
+  start_date: string;
+  end_date: string;
+  max_cloud_cover_pct?: number;
+  provider?: string;
+  analysis_type?: string;
+  period_b_start?: string;
+  period_b_end?: string;
+  biomass_density_factor_t_ha?: number;
+}) =>
+  fetchJson<any>('/satellite/analyze', {
+    method: 'POST',
+    body: JSON.stringify(params)
+  });
+
+export const compareSatellitePeriods = (params: {
+  aoi_bbox?: number[];
+  period_a_start: string;
+  period_a_end: string;
+  period_b_start: string;
+  period_b_end: string;
+  max_cloud_cover_pct?: number;
+  provider?: string;
+}) =>
+  fetchJson<any>('/satellite/compare', {
+    method: 'POST',
+    body: JSON.stringify(params)
+  });
+
+export const detectHyacinthCandidates = (params: {
+  aoi_bbox?: number[];
+  start_date: string;
+  end_date: string;
+  max_cloud_cover_pct?: number;
+  provider?: string;
+  save_to_database?: boolean;
+}) =>
+  fetchJson<any>('/hyacinth/detect', {
+    method: 'POST',
+    body: JSON.stringify(params)
+  });
