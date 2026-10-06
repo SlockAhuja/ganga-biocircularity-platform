@@ -781,3 +781,26 @@ export const detectHyacinthCandidates = (params: {
     method: 'POST',
     body: JSON.stringify(params)
   });
+
+// System Diagnostics & External Provider Integrations
+export const getProvidersHealth = () =>
+  fetchJson<{ status: string; total_providers: number; providers: any[] }>('/system/providers-health');
+
+export const getLiveWeather = (lat?: number, lon?: number) =>
+  fetchJson<any>(`/system/weather${lat && lon ? `?lat=${lat}&lon=${lon}` : ''}`);
+
+export const getHydrologyData = () =>
+  fetchJson<any>('/system/hydrology');
+
+export const getMassBalance = (harvested_tonnes = 479.1, moisture_pct = 91.0, dewatering_efficiency = 25.0) =>
+  fetchJson<any>(`/system/mass-balance?harvested_tonnes=${harvested_tonnes}&moisture_pct=${moisture_pct}&dewatering_efficiency=${dewatering_efficiency}`);
+
+export const getUncertaintyBounds = () =>
+  fetchJson<any>('/system/uncertainty');
+
+export const getDataQualityScore = () =>
+  fetchJson<any>('/system/data-quality');
+
+export const getRealityAudit = () =>
+  fetchJson<any>('/system/audit');
+

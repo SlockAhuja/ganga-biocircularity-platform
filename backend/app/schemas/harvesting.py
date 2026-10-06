@@ -1,5 +1,5 @@
 from typing import Optional, List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 class HarvestingCreateRequest(BaseModel):
@@ -26,8 +26,7 @@ class HarvestingResponse(BaseModel):
     destination_facility: str
     status: str
     notes: Optional[str] = None
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class FieldObservationCreate(BaseModel):
     station_name: str
@@ -39,6 +38,10 @@ class FieldObservationCreate(BaseModel):
     ph_field: Optional[float] = None
     do_field: Optional[float] = None
     observer_name: str = "Field Survey Team"
+    ground_truth_class: str = "HYACINTH"  # HYACINTH, OTHER_AQUATIC_VEGETATION, OPEN_WATER, SEDIMENT, SHORELINE, FALSE_POSITIVE
+    species_identified: str = "Eichhornia crassipes"
+    confidence_score: float = 1.0
+    validation_status: str = "VALIDATED"
     photo_urls: Optional[List[str]] = None
     notes: Optional[str] = None
 
@@ -54,8 +57,11 @@ class FieldObservationResponse(BaseModel):
     ph_field: Optional[float] = None
     do_field: Optional[float] = None
     observer_name: str
+    ground_truth_class: str = "HYACINTH"
+    species_identified: str = "Eichhornia crassipes"
+    confidence_score: float = 1.0
+    validation_status: str = "VALIDATED"
     photo_urls: Optional[List[str]] = None
     notes: Optional[str] = None
     is_demo_data: int = 1
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

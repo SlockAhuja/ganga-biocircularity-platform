@@ -34,6 +34,11 @@ class FieldObservation(Base, TimestampMixin):
     ph_field = Column(Float, nullable=True)
     do_field = Column(Float, nullable=True)
     observer_name = Column(String(255), default="Field Survey Team")
+    ground_truth_class = Column(String(50), default="HYACINTH")  # HYACINTH, OTHER_AQUATIC_VEGETATION, OPEN_WATER, SEDIMENT, SHORELINE, FALSE_POSITIVE
+    species_identified = Column(String(100), default="Eichhornia crassipes")
+    confidence_score = Column(Float, default=1.0)
+    validation_status = Column(String(50), default="VALIDATED")  # UNVERIFIED, VALIDATED, REJECTED
     photo_urls = Column(JSON, nullable=True)
     notes = Column(Text, nullable=True)
     is_demo_data = Column(Integer, default=1)
+

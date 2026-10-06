@@ -124,9 +124,13 @@ def submit_field_observation(req: FieldObservationCreate, db: Session = Depends(
         ph_field=req.ph_field,
         do_field=req.do_field,
         observer_name=req.observer_name,
+        ground_truth_class=req.ground_truth_class,
+        species_identified=req.species_identified,
+        confidence_score=req.confidence_score,
+        validation_status=req.validation_status,
         photo_urls=req.photo_urls,
         notes=req.notes,
-        is_demo_data=1
+        is_demo_data=0
     )
     db.add(obs)
     try:
@@ -146,8 +150,13 @@ def submit_field_observation(req: FieldObservationCreate, db: Session = Depends(
             "ph_field": req.ph_field,
             "do_field": req.do_field,
             "observer_name": req.observer_name,
+            "ground_truth_class": req.ground_truth_class,
+            "species_identified": req.species_identified,
+            "confidence_score": req.confidence_score,
+            "validation_status": req.validation_status,
             "photo_urls": req.photo_urls,
             "notes": req.notes,
-            "is_demo_data": 1
+            "is_demo_data": 0
         }
     return obs
+

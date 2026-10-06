@@ -14,6 +14,7 @@ from app.api.v1 import (
     economics,
     reports,
     assumptions,
+    system,
 )
 
 api_router = APIRouter()
@@ -32,3 +33,5 @@ api_router.include_router(environment.router)
 api_router.include_router(economics.router)
 api_router.include_router(reports.router)
 api_router.include_router(assumptions.router)
+api_router.include_router(system.router)
+

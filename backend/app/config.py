@@ -36,9 +36,14 @@ class Settings(BaseSettings):
     DEFAULT_LONGITUDE: float = 81.8845
     DEFAULT_ZOOM: int = 13
     
+    # Earth Engine Configuration
+    EARTH_ENGINE_ENABLED: bool = True
+    EARTH_ENGINE_PROJECT_ID: str = "camera-503319"
+    
     class Config:
         env_file = ".env"
         case_sensitive = True
         extra = "allow"
+
 
 settings = Settings()
