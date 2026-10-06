@@ -4,7 +4,8 @@
 
 @layer base {
   body {
-    @apply bg-slate-50 text-slate-900 selection:bg-teal-100 selection:text-teal-900;
+    @apply bg-[#F6FAF7] text-[#17211B] antialiased selection:bg-[#EAF5EE] selection:text-[#2E7D5B];
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 

@@ -26,24 +26,34 @@ import { Navbar } from './components/common/Navbar';
 import { Sidebar, TabKey } from './components/common/Sidebar';
 import { MethodologyModal } from './components/common/MethodologyModal';
 import { DataProvenanceModal } from './components/common/DataProvenanceModal';
+import { LoginModal } from './components/common/LoginModal';
 
 // Views
+import { LandingPageView } from './views/LandingPageView';
 import { DashboardView } from './views/DashboardView';
 import { GisView } from './views/GisView';
+import { SatelliteView } from './views/SatelliteView';
+import { FieldOpsView } from './views/FieldOpsView';
 import { BiomassView } from './views/BiomassView';
-import { BioenergyView } from './views/BioenergyView';
-import { CircularityView } from './views/CircularityView';
-import { WaterQualityView } from './views/WaterQualityView';
 import { HarvestingView } from './views/HarvestingView';
+import { BioenergyView } from './views/BioenergyView';
+import { ProductsView } from './views/ProductsView';
+import { WaterQualityView } from './views/WaterQualityView';
 import { EnvironmentView } from './views/EnvironmentView';
 import { EconomicsView } from './views/EconomicsView';
+import { CircularityView } from './views/CircularityView';
 import { ReportsView } from './views/ReportsView';
+import { DataExplorerView } from './views/DataExplorerView';
+import { MethodologyView } from './views/MethodologyView';
+import { AdminView } from './views/AdminView';
 
 export function App() {
+  const [viewMode, setViewMode] = useState<'app' | 'landing'>('app');
   const [activeTab, setActiveTab] = useState<TabKey>('dashboard');
   const [currentRole, setCurrentRole] = useState<UserRole>('RESEARCHER');
   const [isMethodologyOpen, setIsMethodologyOpen] = useState(false);
   const [isProvenanceOpen, setIsProvenanceOpen] = useState(false);
+  const [isLoginOpen, setIsLoginOpen] = useState(false);
 
   // Core Data States
   const [zones, setZones] = useState<HyacinthZone[]>([]);
@@ -125,14 +135,36 @@ export function App() {
     setFieldObs((prev) => [newObs, ...prev]);
   };
 
+  if (viewMode === 'landing') {
+    return (
+      <>
+        <LandingPageView
+          onEnterPlatform={() => setViewMode('app')}
+          onOpenLogin={() => setIsLoginOpen(true)}
+        />
+        <LoginModal
+          isOpen={isLoginOpen}
+          onClose={() => setIsLoginOpen(false)}
+          currentRole={currentRole}
+          onRoleChange={setCurrentRole}
+          onLoginSuccess={() => {
+            setIsLoginOpen(false);
+            setViewMode('app');
+          }}
+        />
+      </>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans text-slate-900">
+    <div className="min-h-screen bg-[#F6FAF7] flex flex-col font-sans text-[#17211B]">
       {/* Top Navigation */}
       <Navbar
         currentRole={currentRole}
         onRoleChange={setCurrentRole}
         onOpenMethodology={() => setIsMethodologyOpen(true)}
         onOpenProvenance={() => setIsProvenanceOpen(true)}
+        onGoToPublicSite={() => setViewMode('landing')}
         selectedRegion="Prayagraj Confluence"
       />
 
@@ -173,6 +205,19 @@ export function App() {
             />
           )}
 
+          {activeTab === 'satellite' && (
+            <SatelliteView />
+          )}
+
+          {activeTab === 'fieldOps' && (
+            <FieldOpsView
+              stations={stations}
+              zones={zones}
+              observations={fieldObs}
+              onSubmitObservation={handleSubmitFieldObservation}
+            />
+          )}
+
           {activeTab === 'biomass' && (
             <BiomassView
               assessments={assessments}
@@ -180,18 +225,6 @@ export function App() {
               selectedZone={selectedZone}
               onSelectZone={handleSelectZone}
             />
-          )}
-
-          {activeTab === 'bioenergy' && (
-            <BioenergyView simulationBiomass={simulationBiomass} />
-          )}
-
-          {activeTab === 'circularity' && (
-            <CircularityView scoreData={circularity} />
-          )}
-
-          {activeTab === 'waterQuality' && (
-            <WaterQualityView observations={waterObs} stations={stations} />
           )}
 
           {activeTab === 'harvesting' && (
@@ -203,6 +236,18 @@ export function App() {
             />
           )}
 
+          {activeTab === 'bioenergy' && (
+            <BioenergyView simulationBiomass={simulationBiomass} />
+          )}
+
+          {activeTab === 'products' && (
+            <ProductsView />
+          )}
+
+          {activeTab === 'waterQuality' && (
+            <WaterQualityView observations={waterObs} stations={stations} />
+          )}
+
           {activeTab === 'environment' && (
             <EnvironmentView impact={impact} />
           )}
@@ -211,13 +256,35 @@ export function App() {
             <EconomicsView simulationBiomass={simulationBiomass} />
           )}
 
+          {activeTab === 'circularity' && (
+            <CircularityView scoreData={circularity} />
+          )}
+
           {activeTab === 'reports' && (
             <ReportsView zones={zones} />
+          )}
+
+          {activeTab === 'dataExplorer' && (
+            <DataExplorerView
+              zones={zones}
+              stations={stations}
+              assessments={assessments}
+              harvestingLogs={harvestingLogs}
+              waterObs={waterObs}
+            />
+          )}
+
+          {activeTab === 'methodology' && (
+            <MethodologyView />
+          )}
+
+          {activeTab === 'admin' && (
+            <AdminView currentRole={currentRole} />
           )}
         </main>
       </div>
 
-      {/* Methodology & Provenance Modals */}
+      {/* Methodology & Provenance & Login Modals */}
       <MethodologyModal
         isOpen={isMethodologyOpen}
         onClose={() => setIsMethodologyOpen(false)}
@@ -225,6 +292,16 @@ export function App() {
       <DataProvenanceModal
         isOpen={isProvenanceOpen}
         onClose={() => setIsProvenanceOpen(false)}
+      />
+      <LoginModal
+        isOpen={isLoginOpen}
+        onClose={() => setIsLoginOpen(false)}
+        currentRole={currentRole}
+        onRoleChange={setCurrentRole}
+        onLoginSuccess={() => {
+          setIsLoginOpen(false);
+          setViewMode('app');
+        }}
       />
     </div>
   );

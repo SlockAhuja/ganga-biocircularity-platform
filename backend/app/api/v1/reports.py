@@ -12,7 +12,8 @@ router = APIRouter(prefix="/reports", tags=["Reports & Export"])
 
 @router.post("/generate", response_model=GeneratedReportResponse)
 def generate_report(req: ReportGenerationRequest, db: Session = Depends(get_db)):
-    report_code = f"REP-{datetime.datetime.utcnow().strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
+    now_utc = datetime.datetime.now(datetime.timezone.utc)
+    report_code = f"REP-{now_utc.strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
     
     summary_metrics = {
         "total_coverage_ha": 38.6,
@@ -56,7 +57,7 @@ def generate_report(req: ReportGenerationRequest, db: Session = Depends(get_db))
             "summary_metrics_json": summary_metrics,
             "pdf_file_path": None,
             "status": "COMPLETED",
-            "created_at": datetime.datetime.utcnow()
+            "created_at": now_utc
         }
         
     return report
