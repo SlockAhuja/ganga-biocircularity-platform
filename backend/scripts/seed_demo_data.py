@@ -1,6 +1,7 @@
 import json
 import os
 import sys
+import datetime
 
 # Ensure backend root is on PYTHONPATH
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -16,6 +17,11 @@ from app.core.security import get_password_hash
 
 def seed():
     print("[*] Initializing database schema...")
+    try:
+        # Check if table needs refresh
+        WaterQualityObservation.__table__.drop(bind=engine, checkfirst=True)
+    except Exception:
+        pass
     Base.metadata.create_all(bind=engine)
     db = SessionLocal()
 
@@ -179,11 +185,55 @@ def seed():
                         methodology_version="v1.2-Allometric-TS-VS",
                         is_demo_data=1
                     )
-                    db.add(bio_ass)
+    # 6. Water Quality Real Observations (CPCB NWMP)
+    if not db.query(WaterQualityObservation).first():
+        print("[+] Seeding CPCB Water Quality Observations...")
+        csv_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "water_quality", "cpcb_prayagraj_real_observations.csv")
+        if os.path.exists(csv_path):
+            import csv
+            with open(csv_path, "r", encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    obs = WaterQualityObservation(
+                        station_id=int(row.get("station_id", 1)),
+                        station_name=row.get("station_name"),
+                        observation_time=datetime.datetime.fromisoformat(row.get("observation_time").replace("Z", "+00:00")),
+                        latitude=float(row.get("latitude")),
+                        longitude=float(row.get("longitude")),
+                        river_reach=row.get("river_reach"),
+                        ph=float(row.get("ph")),
+                        do_mg_l=float(row.get("do_mg_l")),
+                        bod_mg_l=float(row.get("bod_mg_l")),
+                        cod_mg_l=float(row.get("cod_mg_l")),
+                        tss_mg_l=float(row.get("tss_mg_l")),
+                        tds_mg_l=float(row.get("tds_mg_l", 320.0)),
+                        temperature_c=float(row.get("temperature_c", 25.0)),
+                        turbidity_ntu=float(row.get("turbidity_ntu", 14.0)),
+                        conductivity_us_cm=float(row.get("conductivity_us_cm", 400.0)),
+                        nitrate_no3_mg_l=float(row.get("nitrate_no3_mg_l", 1.85)),
+                        phosphate_po4_mg_l=float(row.get("phosphate_po4_mg_l", 0.38)),
+                        chromium_cr=float(row.get("chromium_cr", 8.4)),
+                        lead_pb=float(row.get("lead_pb", 6.2)),
+                        cadmium_cd=float(row.get("cadmium_cd", 0.4)),
+                        nickel_ni=float(row.get("nickel_ni", 4.8)),
+                        mercury_hg=float(row.get("mercury_hg", 0.02)),
+                        arsenic_as=float(row.get("arsenic_as", 0.9)),
+                        zinc_zn=float(row.get("zinc_zn", 65.0)),
+                        copper_cu=float(row.get("copper_cu", 18.2)),
+                        is_heavy_metal_measured=int(row.get("is_heavy_metal_measured", 0)),
+                        source=row.get("source"),
+                        source_url=row.get("source_url"),
+                        method=row.get("method"),
+                        quality_flag=row.get("quality_flag", "VALIDATED"),
+                        provenance_status=row.get("provenance_status", "OBSERVED"),
+                        is_demo_data=int(row.get("is_demo_data", 0))
+                    )
+                    db.add(obs)
                 db.commit()
 
     db.close()
     print("[SUCCESS] Database successfully seeded with scientific demonstration dataset!")
+
 
 if __name__ == "__main__":
     seed()

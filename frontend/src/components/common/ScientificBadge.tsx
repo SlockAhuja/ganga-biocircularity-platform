@@ -15,6 +15,12 @@ export const ScientificBadge: React.FC<ScientificBadgeProps> = ({ type, label, s
       border: 'border-emerald-200',
       defaultLabel: 'OBSERVED DATA'
     },
+    LITERATURE: {
+      bg: 'bg-amber-50',
+      text: 'text-amber-800',
+      border: 'border-amber-300',
+      defaultLabel: 'LITERATURE BENCHMARK'
+    },
     ESTIMATED: {
       bg: 'bg-sky-50',
       text: 'text-sky-700',
@@ -28,9 +34,9 @@ export const ScientificBadge: React.FC<ScientificBadgeProps> = ({ type, label, s
       defaultLabel: 'BIO-MODELED'
     },
     DEMO: {
-      bg: 'bg-amber-50',
-      text: 'text-amber-800',
-      border: 'border-amber-200',
+      bg: 'bg-slate-100',
+      text: 'text-slate-700',
+      border: 'border-slate-300',
       defaultLabel: 'PROTOTYPE DATA'
     }
   };

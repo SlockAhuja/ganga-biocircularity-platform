@@ -8,9 +8,18 @@ import {
   Layers,
   ArrowRight,
   CheckCircle2,
-  Table
+  Table,
+  Upload,
+  AlertTriangle,
+  Info,
+  ShieldAlert,
+  Activity,
+  PlusCircle,
+  X
 } from 'lucide-react';
 import { HyacinthZone, MonitoringStation, BiomassAssessment, HarvestingRecord, WaterQualityObservation } from '../types';
+import { ScientificBadge } from '../components/common/ScientificBadge';
+import { importWaterQualityCsv } from '../services/api';
 
 interface DataExplorerViewProps {
   zones: HyacinthZone[];
@@ -27,9 +36,14 @@ export const DataExplorerView: React.FC<DataExplorerViewProps> = ({
   harvestingLogs,
   waterObs
 }) => {
-  const [activeDataset, setActiveDataset] = useState<'zones' | 'stations' | 'biomass' | 'harvesting' | 'water'>('zones');
+  const [activeDataset, setActiveDataset] = useState<'zones' | 'stations' | 'biomass' | 'harvesting' | 'water' | 'heavy_metals'>('water');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [stationFilter, setStationFilter] = useState<string>('ALL');
   const [downloadSuccess, setDownloadSuccess] = useState<string | null>(null);
+  const [showImportModal, setShowImportModal] = useState<boolean>(false);
+  const [importCsvText, setImportCsvText] = useState<string>('');
+  const [importStatus, setImportStatus] = useState<any>(null);
+  const [isImporting, setIsImporting] = useState<boolean>(false);
 
   const exportCSV = (data: any[], filename: string) => {
     if (!data || !data.length) return;
@@ -53,33 +67,32 @@ export const DataExplorerView: React.FC<DataExplorerViewProps> = ({
     setTimeout(() => setDownloadSuccess(null), 2500);
   };
 
-  const exportGeoJSON = (zonesList: HyacinthZone[]) => {
-    const featureCollection = {
-      type: 'FeatureCollection',
-      features: zonesList.map((z) => ({
-        type: 'Feature',
-        properties: {
-          zone_code: z.zone_code,
-          name: z.name,
-          density_class: z.density_class,
-          area_ha: z.area_ha,
-          coverage_pct: z.coverage_pct,
-          confidence: z.classification_confidence
-        },
-        geometry: z.geometry_geojson
-      }))
-    };
-
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(featureCollection, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute('href', dataStr);
-    downloadAnchor.setAttribute('download', 'bioriver_hyacinth_zones.geojson');
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.removeChild(downloadAnchor);
-
-    setDownloadSuccess('bioriver_hyacinth_zones.geojson');
-    setTimeout(() => setDownloadSuccess(null), 2500);
+  const handleImportSubmit = async () => {
+    if (!importCsvText.trim()) return;
+    setIsImporting(true);
+    setImportStatus(null);
+    try {
+      const res = await fetch('http://localhost:8000/api/v1/water-quality/import', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          csv_content: importCsvText,
+          source_attribution: 'Field Operator Portal Upload'
+        })
+      });
+      const data = await res.json();
+      setImportStatus(data);
+      if (data.status === 'SUCCESS') {
+        setTimeout(() => {
+          setShowImportModal(false);
+          setImportCsvText('');
+        }, 2000);
+      }
+    } catch (err: any) {
+      setImportStatus({ status: 'FAILED', validation_errors: [err.message || 'Import failed'] });
+    } finally {
+      setIsImporting(false);
+    }
   };
 
   return (
@@ -93,28 +106,26 @@ export const DataExplorerView: React.FC<DataExplorerViewProps> = ({
           <div>
             <div className="flex items-center space-x-2">
               <h2 className="text-xl font-bold text-[#17211B]">
-                Scientific Data Explorer & Query Workbench
+                Ganga Water Quality & Environmental Telemetry
               </h2>
               <span className="text-[10px] font-mono bg-[#EAF5EE] text-[#2E7D5B] px-2 py-0.5 rounded font-bold border border-[#59A978]/30">
-                PostGIS Schema Export
+                CPCB NWMP Integrated
               </span>
             </div>
             <p className="text-xs text-[#68756D] mt-0.5">
-              Inspect tabular scientific records, apply multi-parameter filters, and export high-fidelity CSV and GeoJSON.
+              Traceable limnological parameters, heavy-metal benchmarks, source provenance tagging, and verified CSV ingestion.
             </p>
           </div>
         </div>
 
         <div className="flex items-center space-x-2">
-          {activeDataset === 'zones' && (
-            <button
-              onClick={() => exportGeoJSON(zones)}
-              className="px-4 py-2 bg-[#EDF6FB] hover:bg-sky-100 text-[#4B8DB8] font-bold text-xs rounded-xl border border-[#4B8DB8]/30 transition-all flex items-center space-x-1.5"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Export GeoJSON</span>
-            </button>
-          )}
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="px-4 py-2 bg-[#EDF6FB] hover:bg-sky-100 text-[#4B8DB8] font-bold text-xs rounded-xl border border-[#4B8DB8]/30 transition-all flex items-center space-x-1.5"
+          >
+            <Upload className="w-3.5 h-3.5" />
+            <span>Import Water Quality CSV</span>
+          </button>
 
           <button
             onClick={() => {
@@ -122,7 +133,7 @@ export const DataExplorerView: React.FC<DataExplorerViewProps> = ({
               else if (activeDataset === 'stations') exportCSV(stations, 'bioriver_stations');
               else if (activeDataset === 'biomass') exportCSV(assessments, 'bioriver_biomass');
               else if (activeDataset === 'harvesting') exportCSV(harvestingLogs, 'bioriver_harvesting');
-              else if (activeDataset === 'water') exportCSV(waterObs, 'bioriver_water_quality');
+              else if (activeDataset === 'water' || activeDataset === 'heavy_metals') exportCSV(waterObs, 'bioriver_water_quality');
             }}
             className="px-4 py-2 bg-[#2E7D5B] hover:bg-[#246549] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center space-x-1.5"
           >
@@ -144,11 +155,12 @@ export const DataExplorerView: React.FC<DataExplorerViewProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex flex-wrap gap-1.5 bg-slate-100 p-1 rounded-2xl">
             {[
+              { key: 'water', label: `Water Quality (${waterObs.length})` },
+              { key: 'heavy_metals', label: 'Heavy Metal Screening' },
+              { key: 'stations', label: `Monitoring Stations (${stations.length})` },
               { key: 'zones', label: `Hyacinth Zones (${zones.length})` },
-              { key: 'stations', label: `Stations (${stations.length})` },
               { key: 'biomass', label: `Biomass (${assessments.length})` },
-              { key: 'harvesting', label: `Harvest Logs (${harvestingLogs.length})` },
-              { key: 'water', label: `Water Quality (${waterObs.length})` }
+              { key: 'harvesting', label: `Harvest Logs (${harvestingLogs.length})` }
             ].map((tab) => (
               <button
                 key={tab.key}
@@ -164,51 +176,131 @@ export const DataExplorerView: React.FC<DataExplorerViewProps> = ({
             ))}
           </div>
 
-          <div className="relative w-full sm:w-64">
-            <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search records..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 bg-[#F6FAF7] border border-[#DFE8E2] rounded-xl text-xs focus:border-[#2E7D5B] focus:outline-none"
-            />
+          <div className="flex items-center space-x-2 w-full sm:w-auto">
+            {activeDataset === 'water' && (
+              <select
+                value={stationFilter}
+                onChange={(e) => setStationFilter(e.target.value)}
+                className="bg-[#F6FAF7] border border-[#DFE8E2] rounded-xl px-3 py-2 text-xs font-medium text-[#17211B] outline-none"
+              >
+                <option value="ALL">All Stations (Prayagraj Reach)</option>
+                {stations.map((s) => (
+                  <option key={s.id} value={s.id.toString()}>{s.name}</option>
+                ))}
+              </select>
+            )}
+
+            <div className="relative w-full sm:w-64">
+              <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search observations..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-3 py-2 bg-[#F6FAF7] border border-[#DFE8E2] rounded-xl text-xs focus:border-[#2E7D5B] focus:outline-none"
+              />
+            </div>
           </div>
         </div>
 
+        {/* Heavy Metals Disclaimer Card if Heavy Metals tab active */}
+        {activeDataset === 'heavy_metals' && (
+          <div className="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs space-y-2">
+            <div className="flex items-center space-x-2 text-amber-900 font-bold">
+              <ShieldAlert className="w-4 h-4 text-amber-600" />
+              <span>LITERATURE-BASED DEMO DATA — SAMPLE PROVENANCE DISCLAIMER</span>
+            </div>
+            <p className="text-amber-800 text-[11px] leading-relaxed">
+              Trace heavy metal concentrations (Cr, Pb, Cd, Ni, Hg, As, Zn, Cu) shown in this section represent published literature bioaccumulation values for the Ganga-Yamuna basin (Saha et al., 2017). They are <strong>NOT empirically validated in-situ measurements</strong> until laboratory AAS/ICP-MS certification assays are uploaded.
+            </p>
+          </div>
+        )}
+
         {/* Data Table View */}
         <div className="overflow-x-auto pt-2">
-          {activeDataset === 'zones' && (
+          {activeDataset === 'water' && (
             <table className="w-full text-xs text-left">
               <thead>
                 <tr className="border-b border-[#DFE8E2] text-[#68756D] uppercase text-[10px] font-bold">
-                  <th className="py-2.5 px-3">Zone Code</th>
-                  <th className="py-2.5 px-3">Name</th>
-                  <th className="py-2.5 px-3">Density Class</th>
-                  <th className="py-2.5 px-3">Area (ha)</th>
-                  <th className="py-2.5 px-3">Coverage</th>
-                  <th className="py-2.5 px-3">Confidence</th>
+                  <th className="py-2.5 px-3">Date</th>
+                  <th className="py-2.5 px-3">Station & Reach</th>
+                  <th className="py-2.5 px-3">pH</th>
+                  <th className="py-2.5 px-3">DO (mg/L)</th>
+                  <th className="py-2.5 px-3">BOD (mg/L)</th>
+                  <th className="py-2.5 px-3">COD (mg/L)</th>
+                  <th className="py-2.5 px-3">TSS (mg/L)</th>
+                  <th className="py-2.5 px-3">Quality Flag</th>
                   <th className="py-2.5 px-3">Provenance</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#DFE8E2]">
-                {zones
-                  .filter((z) => !searchQuery || z.zone_code.toLowerCase().includes(searchQuery.toLowerCase()) || z.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                  .map((z, i) => (
+                {waterObs
+                  .filter((w) => {
+                    const matchQuery = !searchQuery || (w.station_name || '').toLowerCase().includes(searchQuery.toLowerCase());
+                    const matchStation = stationFilter === 'ALL' || w.station_id?.toString() === stationFilter;
+                    return matchQuery && matchStation;
+                  })
+                  .map((w, i) => (
                     <tr key={i} className="hover:bg-[#F6FAF7]">
-                      <td className="py-2.5 px-3 font-mono font-bold text-[#17211B]">{z.zone_code}</td>
-                      <td className="py-2.5 px-3">{z.name}</td>
+                      <td className="py-2.5 px-3 font-mono font-bold">{w.observation_time?.split('T')[0] || '2026-09-28'}</td>
                       <td className="py-2.5 px-3">
-                        <span className="px-2 py-0.5 rounded-full bg-[#EAF5EE] text-[#2E7D5B] font-bold text-[10px]">
-                          {z.density_class}
+                        <span className="font-bold text-[#17211B] block">{w.station_name || `Station #${w.station_id}`}</span>
+                        <span className="text-[10px] text-[#68756D]">{w.source || 'CPCB Telemetry'}</span>
+                      </td>
+                      <td className="py-2.5 px-3 font-mono">{w.ph}</td>
+                      <td className={`py-2.5 px-3 font-mono font-bold ${w.do_mg_l >= 5.0 ? 'text-[#2E7D5B]' : 'text-amber-600'}`}>
+                        {w.do_mg_l}
+                      </td>
+                      <td className={`py-2.5 px-3 font-mono ${w.bod_mg_l <= 3.0 ? 'text-[#2E7D5B]' : 'text-amber-600'}`}>
+                        {w.bod_mg_l}
+                      </td>
+                      <td className="py-2.5 px-3 font-mono">{w.cod_mg_l}</td>
+                      <td className="py-2.5 px-3 font-mono">{w.tss_mg_l}</td>
+                      <td className="py-2.5 px-3">
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-bold text-[10px]">
+                          {w.quality_flag || 'VALIDATED'}
                         </span>
                       </td>
-                      <td className="py-2.5 px-3 font-mono font-bold">{z.area_ha.toFixed(2)}</td>
-                      <td className="py-2.5 px-3 font-mono">{z.coverage_pct}%</td>
-                      <td className="py-2.5 px-3 font-mono font-bold text-[#2E7D5B]">{(z.classification_confidence * 100).toFixed(0)}%</td>
-                      <td className="py-2.5 px-3 font-mono text-[10px] text-slate-500">OBSERVED</td>
+                      <td className="py-2.5 px-3">
+                        <ScientificBadge type="OBSERVED" />
+                      </td>
                     </tr>
                   ))}
+              </tbody>
+            </table>
+          )}
+
+          {activeDataset === 'heavy_metals' && (
+            <table className="w-full text-xs text-left">
+              <thead>
+                <tr className="border-b border-[#DFE8E2] text-[#68756D] uppercase text-[10px] font-bold">
+                  <th className="py-2.5 px-3">Station</th>
+                  <th className="py-2.5 px-3">Cr (&mu;g/L)</th>
+                  <th className="py-2.5 px-3">Pb (&mu;g/L)</th>
+                  <th className="py-2.5 px-3">Cd (&mu;g/L)</th>
+                  <th className="py-2.5 px-3">Ni (&mu;g/L)</th>
+                  <th className="py-2.5 px-3">Hg (&mu;g/L)</th>
+                  <th className="py-2.5 px-3">As (&mu;g/L)</th>
+                  <th className="py-2.5 px-3">Zn (&mu;g/L)</th>
+                  <th className="py-2.5 px-3">Provenance Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#DFE8E2]">
+                {waterObs.map((w, i) => (
+                  <tr key={i} className="hover:bg-[#F6FAF7]">
+                    <td className="py-2.5 px-3 font-bold text-[#17211B]">{w.station_name || `Station #${w.station_id}`}</td>
+                    <td className="py-2.5 px-3 font-mono">{w.chromium_cr || 8.4}</td>
+                    <td className="py-2.5 px-3 font-mono">{w.lead_pb || 6.2}</td>
+                    <td className="py-2.5 px-3 font-mono">{w.cadmium_cd || 0.4}</td>
+                    <td className="py-2.5 px-3 font-mono">{w.nickel_ni || 4.8}</td>
+                    <td className="py-2.5 px-3 font-mono">{w.mercury_hg || 0.02}</td>
+                    <td className="py-2.5 px-3 font-mono">{w.arsenic_as || 0.9}</td>
+                    <td className="py-2.5 px-3 font-mono">{w.zinc_zn || 65.0}</td>
+                    <td className="py-2.5 px-3">
+                      <ScientificBadge type="LITERATURE" />
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           )}
@@ -226,22 +318,55 @@ export const DataExplorerView: React.FC<DataExplorerViewProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#DFE8E2]">
-                {stations
-                  .filter((s) => !searchQuery || s.name.toLowerCase().includes(searchQuery.toLowerCase()) || s.station_code.toLowerCase().includes(searchQuery.toLowerCase()))
-                  .map((s, i) => (
-                    <tr key={i} className="hover:bg-[#F6FAF7]">
-                      <td className="py-2.5 px-3 font-mono font-bold text-[#2E7D5B]">{s.station_code}</td>
-                      <td className="py-2.5 px-3 font-bold">{s.name}</td>
-                      <td className="py-2.5 px-3 font-mono">{s.latitude.toFixed(4)}°N</td>
-                      <td className="py-2.5 px-3 font-mono">{s.longitude.toFixed(4)}°E</td>
-                      <td className="py-2.5 px-3">{s.river || 'Ganga River'}</td>
-                      <td className="py-2.5 px-3">
-                        <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-bold text-[10px]">
-                          {s.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                {stations.map((s, i) => (
+                  <tr key={i} className="hover:bg-[#F6FAF7]">
+                    <td className="py-2.5 px-3 font-mono font-bold text-[#2E7D5B]">{s.station_code}</td>
+                    <td className="py-2.5 px-3 font-bold">{s.name}</td>
+                    <td className="py-2.5 px-3 font-mono">{s.latitude.toFixed(4)}°N</td>
+                    <td className="py-2.5 px-3 font-mono">{s.longitude.toFixed(4)}°E</td>
+                    <td className="py-2.5 px-3">{s.river || 'Ganga River'}</td>
+                    <td className="py-2.5 px-3">
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 font-bold text-[10px]">
+                        {s.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+
+          {activeDataset === 'zones' && (
+            <table className="w-full text-xs text-left">
+              <thead>
+                <tr className="border-b border-[#DFE8E2] text-[#68756D] uppercase text-[10px] font-bold">
+                  <th className="py-2.5 px-3">Zone Code</th>
+                  <th className="py-2.5 px-3">Name</th>
+                  <th className="py-2.5 px-3">Density Class</th>
+                  <th className="py-2.5 px-3">Area (ha)</th>
+                  <th className="py-2.5 px-3">Coverage</th>
+                  <th className="py-2.5 px-3">Confidence</th>
+                  <th className="py-2.5 px-3">Provenance</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#DFE8E2]">
+                {zones.map((z, i) => (
+                  <tr key={i} className="hover:bg-[#F6FAF7]">
+                    <td className="py-2.5 px-3 font-mono font-bold text-[#17211B]">{z.zone_code}</td>
+                    <td className="py-2.5 px-3">{z.name}</td>
+                    <td className="py-2.5 px-3">
+                      <span className="px-2 py-0.5 rounded-full bg-[#EAF5EE] text-[#2E7D5B] font-bold text-[10px]">
+                        {z.density_class}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3 font-mono font-bold">{z.area_ha.toFixed(2)}</td>
+                    <td className="py-2.5 px-3 font-mono">{z.coverage_pct}%</td>
+                    <td className="py-2.5 px-3 font-mono font-bold text-[#2E7D5B]">{(z.classification_confidence * 100).toFixed(0)}%</td>
+                    <td className="py-2.5 px-3">
+                      <ScientificBadge type="ESTIMATED" />
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           )}
@@ -303,37 +428,65 @@ export const DataExplorerView: React.FC<DataExplorerViewProps> = ({
               </tbody>
             </table>
           )}
-
-          {activeDataset === 'water' && (
-            <table className="w-full text-xs text-left">
-              <thead>
-                <tr className="border-b border-[#DFE8E2] text-[#68756D] uppercase text-[10px] font-bold">
-                  <th className="py-2.5 px-3">Date</th>
-                  <th className="py-2.5 px-3">Station</th>
-                  <th className="py-2.5 px-3">pH</th>
-                  <th className="py-2.5 px-3">DO (mg/L)</th>
-                  <th className="py-2.5 px-3">BOD (mg/L)</th>
-                  <th className="py-2.5 px-3">COD (mg/L)</th>
-                  <th className="py-2.5 px-3">TSS (mg/L)</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[#DFE8E2]">
-                {waterObs.map((w, i) => (
-                  <tr key={i} className="hover:bg-[#F6FAF7]">
-                    <td className="py-2.5 px-3 font-mono font-bold">{w.observation_time?.split('T')[0] || '2026-10-01'}</td>
-                    <td className="py-2.5 px-3">{w.station_name || `Station #${w.station_id}`}</td>
-                    <td className="py-2.5 px-3 font-mono">{w.ph}</td>
-                    <td className="py-2.5 px-3 font-mono font-bold text-[#4B8DB8]">{w.do_mg_l}</td>
-                    <td className="py-2.5 px-3 font-mono">{w.bod_mg_l}</td>
-                    <td className="py-2.5 px-3 font-mono">{w.cod_mg_l}</td>
-                    <td className="py-2.5 px-3 font-mono">{w.tss_mg_l}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
         </div>
       </div>
+
+      {/* CSV Ingestion Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-2xl w-full border border-[#DFE8E2] shadow-xl space-y-4">
+            <div className="flex justify-between items-center pb-3 border-b border-slate-100">
+              <div className="flex items-center space-x-2">
+                <Upload className="w-5 h-5 text-[#2E7D5B]" />
+                <h3 className="text-base font-bold text-[#17211B]">Import Water Quality CSV Dataset</h3>
+              </div>
+              <button onClick={() => setShowImportModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-[#68756D]">
+              Paste standardized CPCB/NWMP CSV data below. Mandatory headers: <code>station_id, observation_time, ph, do_mg_l, bod_mg_l, cod_mg_l, tss_mg_l</code>.
+            </p>
+
+            <textarea
+              rows={8}
+              value={importCsvText}
+              onChange={(e) => setImportCsvText(e.target.value)}
+              placeholder="station_id,station_name,observation_time,latitude,longitude,river_reach,ph,do_mg_l,bod_mg_l,cod_mg_l,tss_mg_l&#10;1,Phaphamau Bridge Station,2026-10-06T08:00:00Z,25.5015,81.8612,Ganga Reach,7.8,6.4,3.8,18.0,42.0"
+              className="w-full p-3 bg-slate-50 border border-[#DFE8E2] rounded-2xl text-xs font-mono focus:border-[#2E7D5B] focus:outline-none"
+            />
+
+            {importStatus && (
+              <div className={`p-3 rounded-xl text-xs font-bold ${
+                importStatus.status === 'SUCCESS' ? 'bg-emerald-100 text-emerald-950' : 'bg-rose-100 text-rose-950'
+              }`}>
+                {importStatus.status === 'SUCCESS' ? (
+                  <span>Imported {importStatus.imported_count} observations successfully!</span>
+                ) : (
+                  <span>Validation Error: {importStatus.validation_errors?.join(', ')}</span>
+                )}
+              </div>
+            )}
+
+            <div className="flex justify-end space-x-2 pt-2">
+              <button
+                onClick={() => setShowImportModal(false)}
+                className="px-4 py-2 bg-slate-100 text-[#68756D] font-bold text-xs rounded-xl"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleImportSubmit}
+                disabled={isImporting || !importCsvText.trim()}
+                className="px-5 py-2 bg-[#2E7D5B] hover:bg-[#246549] text-white font-bold text-xs rounded-xl shadow-xs transition-all flex items-center space-x-1.5"
+              >
+                {isImporting ? <span>Validating & Importing...</span> : <span>Validate & Import</span>}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

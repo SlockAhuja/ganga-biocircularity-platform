@@ -1,6 +1,7 @@
 export type UserRole = 'ADMIN' | 'RESEARCHER' | 'FIELD_OPERATOR' | 'VIEWER';
 
-export type ProvenanceType = 'OBSERVED' | 'ESTIMATED' | 'MODELED' | 'DEMO';
+export type ProvenanceType = 'OBSERVED' | 'LITERATURE' | 'ESTIMATED' | 'MODELED' | 'DEMO';
+
 
 export interface User {
   id: number;
