@@ -40,6 +40,12 @@ export const ScientificBadge: React.FC<ScientificBadgeProps> = ({ type, provenan
       text: 'text-slate-700',
       border: 'border-slate-300',
       defaultLabel: 'PROTOTYPE DATA'
+    },
+    REFERENCE: {
+      bg: 'bg-cyan-50',
+      text: 'text-cyan-800',
+      border: 'border-cyan-300',
+      defaultLabel: 'REFERENCE HYDROGRAPHY'
     }
   };
 

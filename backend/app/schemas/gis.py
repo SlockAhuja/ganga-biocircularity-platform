@@ -1,5 +1,5 @@
 from typing import List, Optional, Any, Dict
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 class GeoJSONGeometry(BaseModel):
@@ -20,8 +20,7 @@ class MonitoringStationBase(BaseModel):
 class MonitoringStationResponse(MonitoringStationBase):
     id: int
     created_at: datetime
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class RiverSegmentResponse(BaseModel):
     id: int
@@ -33,8 +32,7 @@ class RiverSegmentResponse(BaseModel):
     flow_type: str
     monitoring_priority: str
     geometry_geojson: Dict[str, Any]
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class HyacinthZoneBase(BaseModel):
     zone_code: str
@@ -55,8 +53,7 @@ class HyacinthZoneBase(BaseModel):
 class HyacinthZoneResponse(HyacinthZoneBase):
     id: int
     created_at: datetime
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class AreaMeasurementRequest(BaseModel):
     geometry: Dict[str, Any] # Polygon or LineString
@@ -69,3 +66,26 @@ class AreaMeasurementResponse(BaseModel):
     estimated_fresh_biomass_t: float
     confidence_factor: float
     methodology: str
+
+class WaterExtentFeatureProperties(BaseModel):
+    id: str
+    name: str
+    river: str
+    layer_type: str = "water_extent"
+    area_ha: float
+    avg_width_m: float
+    provenance_status: str = "ESTIMATED"
+    source: str = "EARTH_ENGINE_MNDWI"
+    quality_flag: str = "VALIDATED"
+
+class WaterExtentFeature(BaseModel):
+    type: str = "Feature"
+    properties: WaterExtentFeatureProperties
+    geometry: Dict[str, Any]
+
+class WaterExtentResponse(BaseModel):
+    type: str = "FeatureCollection"
+    name: str = "Prayagraj_River_Water_Extent"
+    crs: Optional[Dict[str, Any]] = None
+    properties: Dict[str, Any]
+    features: List[Dict[str, Any]]

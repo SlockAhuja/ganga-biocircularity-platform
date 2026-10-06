@@ -11,7 +11,8 @@ import {
   EnvironmentalImpact,
   EconomicMetric,
   GeneratedReport,
-  UserRole
+  UserRole,
+  WaterExtentCollection
 } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
@@ -74,19 +75,127 @@ export const loginApi = async (username: string, password: string) => {
 };
 
 // 1. GIS & River Networks
+export const getRiverWaterExtent = (regionCode = 'REG-PRY-01') =>
+  fetchJson<WaterExtentCollection>(`/regions/water-extent?region_code=${regionCode}`, undefined, {
+    type: 'FeatureCollection',
+    name: 'Prayagraj_River_Water_Extent',
+    properties: {
+      source: 'EARTH_ENGINE_AND_HYDROGRAPHY',
+      provenance_status: 'ESTIMATED',
+      method: 'Sentinel-2 MNDWI Water Delineation (B3-B11)/(B3+B11) & Authoritative WGS84 Hydrographic Bounds',
+      study_region: 'Prayagraj (Allahabad) Ganga-Yamuna Confluence',
+      total_water_area_ha: 1425.8,
+      crs: 'EPSG:4326'
+    },
+    features: [
+      {
+        type: 'Feature',
+        properties: {
+          id: 'water-ganga-upstream',
+          name: 'Ganga River Water Extent - Phaphamau to Curzon Reach',
+          river: 'Ganga',
+          layer_type: 'water_extent',
+          area_ha: 485.2,
+          avg_width_m: 520.0,
+          provenance_status: 'ESTIMATED',
+          source: 'EARTH_ENGINE_MNDWI',
+          quality_flag: 'VALIDATED'
+        },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [[
+            [81.8480, 25.5300], [81.8510, 25.5180], [81.8540, 25.5050], [81.8600, 25.4950],
+            [81.8660, 25.4850], [81.8700, 25.4720], [81.8720, 25.4600], [81.8740, 25.4480],
+            [81.8760, 25.4380], [81.8810, 25.4320], [81.8860, 25.4340], [81.8840, 25.4450],
+            [81.8820, 25.4580], [81.8790, 25.4720], [81.8750, 25.4860], [81.8700, 25.4980],
+            [81.8650, 25.5100], [81.8600, 25.5220], [81.8560, 25.5320], [81.8480, 25.5300]
+          ]]
+        }
+      },
+      {
+        type: 'Feature',
+        properties: {
+          id: 'water-yamuna',
+          name: 'Yamuna River Water Extent - Naini Bridge to Sangam Reach',
+          river: 'Yamuna',
+          layer_type: 'water_extent',
+          area_ha: 298.5,
+          avg_width_m: 410.0,
+          provenance_status: 'ESTIMATED',
+          source: 'EARTH_ENGINE_MNDWI',
+          quality_flag: 'VALIDATED'
+        },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [[
+            [81.8250, 25.4220], [81.8350, 25.4240], [81.8480, 25.4260], [81.8580, 25.4270],
+            [81.8680, 25.4280], [81.8780, 25.4290], [81.8830, 25.4270], [81.8840, 25.4230],
+            [81.8790, 25.4210], [81.8700, 25.4200], [81.8590, 25.4190], [81.8480, 25.4180],
+            [81.8360, 25.4160], [81.8250, 25.4140], [81.8250, 25.4220]
+          ]]
+        }
+      },
+      {
+        type: 'Feature',
+        properties: {
+          id: 'water-sangam-confluence',
+          name: 'Triveni Sangam Sacred Confluence Pool Extent',
+          river: 'Ganga-Yamuna Confluence',
+          layer_type: 'water_extent',
+          area_ha: 218.6,
+          avg_width_m: 820.0,
+          provenance_status: 'ESTIMATED',
+          source: 'EARTH_ENGINE_MNDWI',
+          quality_flag: 'VALIDATED'
+        },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [[
+            [81.8760, 25.4380], [81.8810, 25.4320], [81.8860, 25.4340], [81.8920, 25.4310],
+            [81.8950, 25.4250], [81.8920, 25.4190], [81.8860, 25.4170], [81.8840, 25.4230],
+            [81.8830, 25.4270], [81.8780, 25.4290], [81.8760, 25.4380]
+          ]]
+        }
+      },
+      {
+        type: 'Feature',
+        properties: {
+          id: 'water-ganga-downstream',
+          name: 'Ganga River Water Extent - Jhunsi & Arail Downstream Reach',
+          river: 'Ganga',
+          layer_type: 'water_extent',
+          area_ha: 423.5,
+          avg_width_m: 610.0,
+          provenance_status: 'ESTIMATED',
+          source: 'EARTH_ENGINE_MNDWI',
+          quality_flag: 'VALIDATED'
+        },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [[
+            [81.8920, 25.4310], [81.9020, 25.4280], [81.9150, 25.4240], [81.9300, 25.4190],
+            [81.9480, 25.4120], [81.9650, 25.4050], [81.9680, 25.3980], [81.9500, 25.4020],
+            [81.9320, 25.4080], [81.9160, 25.4130], [81.9030, 25.4160], [81.8920, 25.4190],
+            [81.8950, 25.4250], [81.8920, 25.4310]
+          ]]
+        }
+      }
+    ]
+  });
+
 export const getRiverSegments = () => fetchJson<RiverSegment[]>('/regions/river-segments', undefined, [
   {
     id: 1,
     segment_code: 'segment-ganga-upstream',
     name: 'Ganga River - Upstream Phaphamau Reach',
     river: 'Ganga',
-    length_km: 14.8,
-    avg_width_m: 480,
+    length_km: 12.8,
+    avg_width_m: 520,
     flow_type: 'Mainstream Perennial',
     monitoring_priority: 'High',
     geometry_geojson: {
       type: 'LineString',
-      coordinates: [[81.7610, 25.5680], [81.7820, 25.5450], [81.8100, 25.5230], [81.8410, 25.5020], [81.8650, 25.4850], [81.8820, 25.4610]]
+      coordinates: [[81.8520, 25.5310], [81.8540, 25.5200], [81.8570, 25.5080], [81.8620, 25.4970], [81.8680, 25.4850], [81.8730, 25.4720], [81.8750, 25.4590], [81.8770, 25.4470], [81.8790, 25.4360], [81.8845, 25.4260]]
     }
   },
   {
@@ -94,13 +203,13 @@ export const getRiverSegments = () => fetchJson<RiverSegment[]>('/regions/river-
     segment_code: 'segment-ganga-sangam',
     name: 'Ganga River - Sangam Confluence Reach',
     river: 'Ganga',
-    length_km: 8.5,
-    avg_width_m: 720,
+    length_km: 6.5,
+    avg_width_m: 820,
     flow_type: 'Sacred Confluence & Sedimentation Zone',
     monitoring_priority: 'Critical',
     geometry_geojson: {
       type: 'LineString',
-      coordinates: [[81.8820, 25.4610], [81.8885, 25.4380], [81.8845, 25.4260], [81.8970, 25.4190], [81.9150, 25.4150]]
+      coordinates: [[81.8790, 25.4360], [81.8820, 25.4300], [81.8845, 25.4260], [81.8890, 25.4230], [81.8950, 25.4210]]
     }
   },
   {
@@ -108,13 +217,13 @@ export const getRiverSegments = () => fetchJson<RiverSegment[]>('/regions/river-
     segment_code: 'segment-yamuna-reach',
     name: 'Yamuna River - Naini to Sangam Reach',
     river: 'Yamuna',
-    length_km: 9.2,
-    avg_width_m: 390,
+    length_km: 7.4,
+    avg_width_m: 410,
     flow_type: 'Tributary Inflow',
     monitoring_priority: 'High',
     geometry_geojson: {
       type: 'LineString',
-      coordinates: [[81.8180, 25.4120], [81.8420, 25.4180], [81.8650, 25.4230], [81.8845, 25.4260]]
+      coordinates: [[81.8250, 25.4180], [81.8355, 25.4200], [81.8480, 25.4220], [81.8585, 25.4230], [81.8685, 25.4240], [81.8785, 25.4250], [81.8845, 25.4260]]
     }
   },
   {
@@ -122,13 +231,13 @@ export const getRiverSegments = () => fetchJson<RiverSegment[]>('/regions/river-
     segment_code: 'segment-ganga-downstream',
     name: 'Ganga River - Downstream Jhunsi / Arail Reach',
     river: 'Ganga',
-    length_km: 12.3,
+    length_km: 9.6,
     avg_width_m: 610,
     flow_type: 'Downstream Meandering Channel',
     monitoring_priority: 'Moderate',
     geometry_geojson: {
       type: 'LineString',
-      coordinates: [[81.9150, 25.4150], [81.9420, 25.4110], [81.9700, 25.3980], [81.9980, 25.3850]]
+      coordinates: [[81.8950, 25.4210], [81.9050, 25.4190], [81.9160, 25.4160], [81.9310, 25.4120], [81.9480, 25.4070], [81.9660, 25.4010]]
     }
   }
 ]);

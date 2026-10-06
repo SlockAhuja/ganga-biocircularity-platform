@@ -7,18 +7,20 @@ import {
   Popup,
   Polyline,
   Polygon,
-  useMapEvents,
-  useMap
+  useMapEvents
 } from 'react-leaflet';
-import { HyacinthZone, MonitoringStation, RiverSegment } from '../../types';
+import { HyacinthZone, MonitoringStation, RiverSegment, WaterExtentCollection, WaterExtentFeature } from '../../types';
+import { getRiverWaterExtent } from '../../services/api';
 import { MeasurementTool } from './MeasurementTool';
-import { Layers, Eye, Map as MapIcon, Satellite, Mountain } from 'lucide-react';
+import { ScientificBadge } from '../common/ScientificBadge';
+import { Layers, Map as MapIcon, Satellite, Mountain, Droplets, Info } from 'lucide-react';
 import 'leaflet/dist/leaflet.css';
 
 interface RiverMapProps {
   zones: HyacinthZone[];
   stations: MonitoringStation[];
   segments: RiverSegment[];
+  waterExtent?: WaterExtentCollection | null;
   selectedZone: HyacinthZone | null;
   onSelectZone: (zone: HyacinthZone) => void;
   height?: string;
@@ -26,17 +28,17 @@ interface RiverMapProps {
 
 // Basemaps configurations
 const BASEMAPS = {
+  satellite: {
+    name: 'ESRI Satellite',
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{x}/{y}',
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+    icon: <Satellite className="w-3.5 h-3.5" />
+  },
   standard: {
     name: 'OpenStreetMap',
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; OpenStreetMap contributors',
     icon: <MapIcon className="w-3.5 h-3.5" />
-  },
-  satellite: {
-    name: 'ESRI Satellite',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
-    icon: <Satellite className="w-3.5 h-3.5" />
   },
   terrain: {
     name: 'Topographic',
@@ -86,14 +88,19 @@ export const RiverMap: React.FC<RiverMapProps> = ({
   zones,
   stations,
   segments,
+  waterExtent: propWaterExtent,
   selectedZone,
   onSelectZone,
   height = '560px'
 }) => {
   const [basemapKey, setBasemapKey] = useState<keyof typeof BASEMAPS>('satellite');
+  const [showWaterExtent, setShowWaterExtent] = useState(true);
+  const [showCenterlines, setShowCenterlines] = useState(true);
   const [showStations, setShowStations] = useState(true);
-  const [showRiverSegments, setShowRiverSegments] = useState(true);
   const [showHyacinthZones, setShowHyacinthZones] = useState(true);
+
+  // Water Extent GeoJSON State
+  const [waterExtent, setWaterExtent] = useState<WaterExtentCollection | null>(propWaterExtent || null);
 
   // Measurement State
   const [measureMode, setMeasureMode] = useState<'none' | 'polygon' | 'distance'>('none');
@@ -106,12 +113,23 @@ export const RiverMap: React.FC<RiverMapProps> = ({
   const centerLat = 25.4380;
   const centerLng = 81.8845;
 
+  useEffect(() => {
+    if (!propWaterExtent) {
+      getRiverWaterExtent().then((data) => {
+        setWaterExtent(data);
+      }).catch((err) => {
+        console.warn('Failed to load water extent:', err);
+      });
+    } else {
+      setWaterExtent(propWaterExtent);
+    }
+  }, [propWaterExtent]);
+
   const handleAddPoint = (point: [number, number]) => {
     const updated = [...drawnPoints, point];
     setDrawnPoints(updated);
 
     if (measureMode === 'polygon' && updated.length >= 3) {
-      // Calculate approximate spherical geodesic area
       let area = 0;
       const R = 6371008.8; // meters
       for (let i = 0; i < updated.length; i++) {
@@ -119,29 +137,29 @@ export const RiverMap: React.FC<RiverMapProps> = ({
         const p2 = updated[(i + 1) % updated.length];
         const lat1 = (p1[0] * Math.PI) / 180;
         const lat2 = (p2[0] * Math.PI) / 180;
-        const lng1 = (p1[1] * Math.PI) / 180;
-        const lng2 = (p2[1] * Math.PI) / 180;
-        area += (lng2 - lng1) * (2 + Math.sin(lat1) + Math.sin(lat2));
+        const lon1 = (p1[1] * Math.PI) / 180;
+        const lon2 = (p2[1] * Math.PI) / 180;
+        area += (lon2 - lon1) * (2 + Math.sin(lat1) + Math.sin(lat2));
       }
       area = Math.abs((area * R * R) / 2.0);
-      const ha = area / 10000.0;
-      setCalcAreaHa(ha);
-      setEstBiomassT(ha * 32.0);
+      const areaHa = area / 10000;
+      setCalcAreaHa(Number(areaHa.toFixed(2)));
+      setEstBiomassT(Number((areaHa * 34.5).toFixed(1))); // ~34.5 t/ha allometric density
     } else if (measureMode === 'distance' && updated.length >= 2) {
       let dist = 0;
-      const R = 6371008.8;
+      const R = 6371e3;
       for (let i = 0; i < updated.length - 1; i++) {
         const lat1 = (updated[i][0] * Math.PI) / 180;
         const lat2 = (updated[i + 1][0] * Math.PI) / 180;
-        const dLat = lat2 - lat1;
-        const dLng = ((updated[i + 1][1] - updated[i][1]) * Math.PI) / 180;
+        const dLat = ((updated[i + 1][0] - updated[i][0]) * Math.PI) / 180;
+        const dLon = ((updated[i + 1][1] - updated[i][1]) * Math.PI) / 180;
         const a =
           Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+          Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         dist += R * c;
       }
-      setCalcDistanceM(dist);
+      setCalcDistanceM(Number(dist.toFixed(1)));
     }
   };
 
@@ -181,8 +199,46 @@ export const RiverMap: React.FC<RiverMapProps> = ({
           attribution={BASEMAPS[basemapKey].attribution}
         />
 
-        {/* River Segments */}
-        {showRiverSegments &&
+        {/* 1. River Water Extent Polygon Layer (Sentinel-2 MNDWI & Hydrography Delineated) */}
+        {showWaterExtent && waterExtent?.features?.map((feat: WaterExtentFeature) => {
+          const coords = feat.geometry?.coordinates?.[0]?.map((c: [number, number]) => [c[1], c[0]]) || [];
+          const isYamuna = feat.properties.river.toLowerCase().includes('yamuna');
+          const isConfluence = feat.properties.river.toLowerCase().includes('confluence');
+          const fillColor = isConfluence ? '#0ea5e9' : (isYamuna ? '#0284c7' : '#0369a1');
+
+          return (
+            <Polygon
+              key={`water-poly-${feat.properties.id}`}
+              positions={coords}
+              pathOptions={{
+                color: fillColor,
+                fillColor: fillColor,
+                fillOpacity: 0.38,
+                weight: 1.8
+              }}
+            >
+              <Popup>
+                <div className="p-2.5 text-xs space-y-1.5 min-w-[220px]">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-1">
+                    <span className="font-bold text-slate-900">{feat.properties.river}</span>
+                    <ScientificBadge provenance={feat.properties.provenance_status} />
+                  </div>
+                  <span className="font-semibold text-slate-800 block text-[11px]">{feat.properties.name}</span>
+                  <div className="grid grid-cols-2 gap-1 text-[10px] font-mono text-slate-600 pt-1">
+                    <span>Water Area: <strong>{feat.properties.area_ha} ha</strong></span>
+                    <span>Avg Width: <strong>{feat.properties.avg_width_m} m</strong></span>
+                  </div>
+                  <div className="text-[9px] text-slate-500 pt-1 border-t border-slate-100">
+                    Source: {feat.properties.source} (Quality: {feat.properties.quality_flag})
+                  </div>
+                </div>
+              </Popup>
+            </Polygon>
+          );
+        })}
+
+        {/* 2. River Centerlines (Meandering Thalweg Lines) */}
+        {showCenterlines &&
           segments.map((seg) => {
             const coords = seg.geometry_geojson?.coordinates?.map((c: [number, number]) => [c[1], c[0]]) || [];
             const isGanga = seg.river.toLowerCase().includes('ganga');
@@ -191,22 +247,27 @@ export const RiverMap: React.FC<RiverMapProps> = ({
                 key={`seg-${seg.id}`}
                 positions={coords}
                 pathOptions={{
-                  color: isGanga ? '#0284c7' : '#0d9488',
-                  weight: isGanga ? 6 : 4,
-                  opacity: 0.85
+                  color: isGanga ? '#38bdf8' : '#2dd4bf',
+                  weight: 2.5,
+                  dashArray: '5, 5',
+                  opacity: 0.95
                 }}
               >
                 <Popup>
-                  <div className="p-2 text-xs">
-                    <span className="font-bold text-slate-900 block">{seg.name}</span>
-                    <span className="text-slate-500">Length: {seg.length_km} km | Priority: {seg.monitoring_priority}</span>
+                  <div className="p-2 text-xs space-y-1">
+                    <div className="flex items-center justify-between border-b pb-1">
+                      <span className="font-bold text-slate-900">{seg.name}</span>
+                      <ScientificBadge provenance="REFERENCE" />
+                    </div>
+                    <span className="text-slate-600 block text-[11px]">Thalweg Centerline: {seg.length_km} km</span>
+                    <span className="text-slate-500 text-[10px]">Priority: {seg.monitoring_priority}</span>
                   </div>
                 </Popup>
               </Polyline>
             );
           })}
 
-        {/* Hyacinth Zones Polygons */}
+        {/* 3. Hyacinth Candidate Zones Polygons */}
         {showHyacinthZones &&
           zones.map((zone) => {
             const isSelected = selectedZone?.id === zone.id;
@@ -220,7 +281,7 @@ export const RiverMap: React.FC<RiverMapProps> = ({
                 pathOptions={{
                   color: isSelected ? '#f59e0b' : color,
                   fillColor: color,
-                  fillOpacity: isSelected ? 0.65 : 0.45,
+                  fillOpacity: isSelected ? 0.70 : 0.48,
                   weight: isSelected ? 3.5 : 2
                 }}
                 eventHandlers={{
@@ -250,7 +311,7 @@ export const RiverMap: React.FC<RiverMapProps> = ({
             );
           })}
 
-        {/* Monitoring Stations */}
+        {/* 4. Monitoring Stations */}
         {showStations &&
           stations.map((stn) => (
             <CircleMarker
@@ -266,7 +327,10 @@ export const RiverMap: React.FC<RiverMapProps> = ({
             >
               <Popup>
                 <div className="p-2.5 text-xs space-y-1">
-                  <span className="font-mono text-[10px] text-sky-700 font-bold block">{stn.station_code}</span>
+                  <div className="flex items-center justify-between border-b pb-1">
+                    <span className="font-mono text-[10px] text-sky-700 font-bold">{stn.station_code}</span>
+                    <ScientificBadge provenance="OBSERVED" />
+                  </div>
                   <span className="font-bold text-slate-900 block">{stn.name}</span>
                   <span className="text-slate-500 text-[11px] block">{stn.station_type}</span>
                   <div className="text-[11px] font-mono text-slate-700 pt-1">
@@ -293,10 +357,13 @@ export const RiverMap: React.FC<RiverMapProps> = ({
       />
 
       {/* Layer Toggles & Basemap Switcher on Top Right */}
-      <div className="absolute top-4 right-4 z-[400] bg-white/95 backdrop-blur-md p-2.5 rounded-xl border border-slate-200/90 shadow-md text-xs space-y-2">
-        <div className="flex items-center space-x-1.5 font-bold text-slate-800 border-b border-slate-100 pb-1.5">
-          <Layers className="w-3.5 h-3.5 text-confluence-700" />
-          <span>Basemap & Layers</span>
+      <div className="absolute top-4 right-4 z-[400] bg-white/95 backdrop-blur-md p-2.5 rounded-xl border border-slate-200/90 shadow-md text-xs space-y-2 max-w-[240px]">
+        <div className="flex items-center justify-between font-bold text-slate-800 border-b border-slate-100 pb-1.5">
+          <div className="flex items-center space-x-1.5">
+            <Layers className="w-3.5 h-3.5 text-confluence-700" />
+            <span>GIS Map Layers</span>
+          </div>
+          <span className="text-[9px] font-mono bg-sky-100 text-sky-800 px-1.5 py-0.5 rounded font-bold">WGS84</span>
         </div>
 
         {/* Basemap Switcher */}
@@ -306,7 +373,7 @@ export const RiverMap: React.FC<RiverMapProps> = ({
               key={key}
               onClick={() => setBasemapKey(key)}
               title={BASEMAPS[key].name}
-              className={`flex items-center space-x-1 px-2 py-1 rounded text-[11px] font-semibold transition-all ${
+              className={`flex items-center space-x-1 px-2 py-1 rounded text-[10px] font-semibold transition-all ${
                 basemapKey === key
                   ? 'bg-white text-confluence-800 shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
@@ -320,41 +387,63 @@ export const RiverMap: React.FC<RiverMapProps> = ({
 
         {/* Layers Checkboxes */}
         <div className="space-y-1.5 pt-1 text-[11px] text-slate-700">
-          <label className="flex items-center space-x-2 cursor-pointer">
+          <label className="flex items-center space-x-2 cursor-pointer hover:text-slate-900">
+            <input
+              type="checkbox"
+              checked={showWaterExtent}
+              onChange={(e) => setShowWaterExtent(e.target.checked)}
+              className="rounded text-confluence-600 focus:ring-confluence-500"
+            />
+            <div className="flex items-center justify-between w-full">
+              <span>River Water Extent</span>
+              <span className="text-[9px] font-mono bg-sky-50 text-sky-700 px-1 rounded">Polygon</span>
+            </div>
+          </label>
+
+          <label className="flex items-center space-x-2 cursor-pointer hover:text-slate-900">
+            <input
+              type="checkbox"
+              checked={showCenterlines}
+              onChange={(e) => setShowCenterlines(e.target.checked)}
+              className="rounded text-confluence-600 focus:ring-confluence-500"
+            />
+            <div className="flex items-center justify-between w-full">
+              <span>River Centerlines</span>
+              <span className="text-[9px] font-mono bg-slate-100 text-slate-600 px-1 rounded">Thalweg</span>
+            </div>
+          </label>
+
+          <label className="flex items-center space-x-2 cursor-pointer hover:text-slate-900">
             <input
               type="checkbox"
               checked={showHyacinthZones}
               onChange={(e) => setShowHyacinthZones(e.target.checked)}
               className="rounded text-confluence-600 focus:ring-confluence-500"
             />
-            <span>Hyacinth Zones ({zones.length})</span>
+            <div className="flex items-center justify-between w-full">
+              <span>Hyacinth Zones ({zones.length})</span>
+              <span className="text-[9px] font-mono bg-emerald-50 text-emerald-700 px-1 rounded">MSI</span>
+            </div>
           </label>
 
-          <label className="flex items-center space-x-2 cursor-pointer">
+          <label className="flex items-center space-x-2 cursor-pointer hover:text-slate-900">
             <input
               type="checkbox"
               checked={showStations}
               onChange={(e) => setShowStations(e.target.checked)}
               className="rounded text-confluence-600 focus:ring-confluence-500"
             />
-            <span>Monitoring Stations ({stations.length})</span>
-          </label>
-
-          <label className="flex items-center space-x-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={showRiverSegments}
-              onChange={(e) => setShowRiverSegments(e.target.checked)}
-              className="rounded text-confluence-600 focus:ring-confluence-500"
-            />
-            <span>River Channels ({segments.length})</span>
+            <div className="flex items-center justify-between w-full">
+              <span>Monitoring Stations ({stations.length})</span>
+              <span className="text-[9px] font-mono bg-blue-50 text-blue-700 px-1 rounded">CPCB</span>
+            </div>
           </label>
         </div>
       </div>
 
       {/* Legend on Bottom Left */}
       <div className="absolute bottom-4 left-4 z-[400] bg-white/95 backdrop-blur-md px-3 py-2 rounded-xl border border-slate-200/90 shadow-xs text-[11px] space-y-1">
-        <span className="font-bold text-slate-700 uppercase tracking-wider text-[10px] block">Density Classes</span>
+        <span className="font-bold text-slate-700 uppercase tracking-wider text-[10px] block">Hyacinth Density</span>
         <div className="flex items-center space-x-3">
           <div className="flex items-center space-x-1">
             <span className="w-2.5 h-2.5 rounded-full bg-red-600"></span>

@@ -1,6 +1,6 @@
 export type UserRole = 'ADMIN' | 'RESEARCHER' | 'FIELD_OPERATOR' | 'VIEWER';
 
-export type ProvenanceType = 'OBSERVED' | 'LITERATURE' | 'ESTIMATED' | 'MODELED' | 'DEMO';
+export type ProvenanceType = 'OBSERVED' | 'LITERATURE' | 'ESTIMATED' | 'MODELED' | 'DEMO' | 'REFERENCE';
 
 
 export interface User {
@@ -37,6 +37,36 @@ export interface RiverSegment {
   flow_type: string;
   monitoring_priority: string;
   geometry_geojson: any;
+}
+
+export interface WaterExtentFeature {
+  type: string;
+  properties: {
+    id: string;
+    name: string;
+    river: string;
+    layer_type: string;
+    area_ha: number;
+    avg_width_m: number;
+    provenance_status: ProvenanceType;
+    source: string;
+    quality_flag: string;
+  };
+  geometry: any;
+}
+
+export interface WaterExtentCollection {
+  type: string;
+  name: string;
+  properties: {
+    source: string;
+    provenance_status: ProvenanceType;
+    method: string;
+    study_region?: string;
+    total_water_area_ha?: number;
+    crs?: string;
+  };
+  features: WaterExtentFeature[];
 }
 
 export interface HyacinthZone {

@@ -20,6 +20,7 @@ def seed():
     try:
         # Check if table needs refresh
         WaterQualityObservation.__table__.drop(bind=engine, checkfirst=True)
+        RiverSegment.__table__.drop(bind=engine, checkfirst=True)
     except Exception:
         pass
     Base.metadata.create_all(bind=engine)
