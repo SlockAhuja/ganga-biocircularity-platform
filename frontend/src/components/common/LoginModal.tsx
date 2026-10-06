@@ -9,6 +9,7 @@ import {
   ArrowRight,
   Sparkles
 } from 'lucide-react';
+import { loginApi } from '../../services/api';
 import { UserRole } from '../../types';
 
 interface LoginModalProps {
@@ -28,18 +29,33 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 }) => {
   const [email, setEmail] = useState<string>('researcher@bioriver.in');
   const [password, setPassword] = useState<string>('bioriver2026');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
   const handleSelectPreset = (role: UserRole, defaultEmail: string) => {
     onRoleChange(role);
     setEmail(defaultEmail);
+    setErrorMsg(null);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLoginSuccess();
-    onClose();
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const res = await loginApi(email, password);
+      if (res && res.role) {
+        onRoleChange(res.role as UserRole);
+      }
+      onLoginSuccess();
+      onClose();
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Authentication failed. Please check credentials.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -127,11 +143,18 @@ export const LoginModal: React.FC<LoginModalProps> = ({
             </div>
           </div>
 
+          {errorMsg && (
+            <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-xs rounded-xl font-medium">
+              {errorMsg}
+            </div>
+          )}
+
           <button
             type="submit"
-            className="w-full py-3 bg-[#2E7D5B] hover:bg-[#246549] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center space-x-2"
+            disabled={loading}
+            className="w-full py-3 bg-[#2E7D5B] hover:bg-[#246549] text-white font-bold text-xs rounded-xl shadow-md transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
           >
-            <span>Sign In & Open Platform</span>
+            <span>{loading ? 'Authenticating...' : 'Sign In & Open Platform'}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </form>

@@ -16,11 +16,30 @@ import {
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
+export function getAuthToken(): string | null {
+  return localStorage.getItem('bioriver_token');
+}
+
+export function setAuthToken(token: string) {
+  localStorage.setItem('bioriver_token', token);
+}
+
+export function clearAuthToken() {
+  localStorage.removeItem('bioriver_token');
+}
+
 async function fetchJson<T>(endpoint: string, options?: RequestInit, fallback?: T): Promise<T> {
+  const token = getAuthToken();
+  const authHeaders: Record<string, string> = {};
+  if (token) {
+    authHeaders['Authorization'] = `Bearer ${token}`;
+  }
+
   try {
     const res = await fetch(`${API_BASE}${endpoint}`, {
       headers: {
         'Content-Type': 'application/json',
+        ...authHeaders,
         ...(options?.headers || {})
       },
       ...options
@@ -30,13 +49,29 @@ async function fetchJson<T>(endpoint: string, options?: RequestInit, fallback?: 
     }
     return await res.json();
   } catch (err) {
-    console.warn(`[GangaPlatform API] Fallback active for ${endpoint}:`, err);
+    console.warn(`[BioRiver API] Fallback active for ${endpoint}:`, err);
     if (fallback !== undefined) {
       return fallback;
     }
     throw err;
   }
 }
+
+// 0. Authentication
+export const loginApi = async (username: string, password: string) => {
+  const res = await fetchJson<{ access_token: string; role: string; full_name: string }>('/auth/login-json', {
+    method: 'POST',
+    body: JSON.stringify({ username, password })
+  }, {
+    access_token: 'demo-token-' + username,
+    role: username.includes('admin') ? 'ADMIN' : username.includes('operator') ? 'FIELD_OPERATOR' : 'RESEARCHER',
+    full_name: 'Authenticated User'
+  });
+  if (res.access_token) {
+    setAuthToken(res.access_token);
+  }
+  return res;
+};
 
 // 1. GIS & River Networks
 export const getRiverSegments = () => fetchJson<RiverSegment[]>('/regions/river-segments', undefined, [

@@ -108,6 +108,7 @@ def get_biomass_assessments(db: Session = Depends(get_db)):
     return assessments
 
 @router.post("/calculate", response_model=BiomassAssessmentResponse)
+@router.post("/quantify", response_model=BiomassAssessmentResponse)
 def calculate_custom_biomass(req: BiomassCalculationRequest):
     result = calculate_biomass_quantification(
         area_ha=req.area_ha,
