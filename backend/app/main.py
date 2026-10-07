@@ -16,9 +16,19 @@ app = FastAPI(
     version=settings.VERSION,
     description=settings.DESCRIPTION,
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    docs_url=f"{settings.API_V1_STR}/docs",
-    redoc_url=f"{settings.API_V1_STR}/redoc",
+    docs_url="/docs",
+    redoc_url="/redoc",
 )
+
+from fastapi.openapi.docs import get_swagger_ui_html
+
+@app.get(f"{settings.API_V1_STR}/docs", include_in_schema=False)
+async def custom_swagger_ui_html():
+    return get_swagger_ui_html(
+        openapi_url=app.openapi_url,
+        title=app.title + " - API Docs",
+    )
+
 
 # CORS Middleware
 app.add_middleware(
@@ -44,6 +54,7 @@ def root_endpoint():
     }
 
 @app.get("/health")
+@app.get(f"{settings.API_V1_STR}/health")
 def health_check():
     return {
         "status": "healthy",
@@ -52,3 +63,4 @@ def health_check():
         "gis_engine": "operational",
         "bioenergy_engine": "operational"
     }
+
